@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it using the metadata below."
+type: software
+title: "Legacy Well Risk Assessment Tool (LWRA)"
+version: 0.1.0
+date-released: "2024-01-01"
+license: MIT
+abstract: >
+  LWRA is an open-source Python tool for evaluating the integrity and reuse
+  potential of legacy oil and gas wells for CO2 geological storage and
+  geothermal energy applications. It implements a traceable, deterministic
+  risk-based assessment methodology inspired by API RP 90, NORSOK D-010, and
+  ISO 27914. Every score carries a full calculation trace suitable for
+  publication appendices and regulatory review.
+keywords:
+  - well integrity
+  - risk assessment
+  - CO2 storage
+  - geothermal energy
+  - petroleum engineering
+  - legacy wells
+  - well abandonment
+authors:
+  - name: "LWRA contributors"
+repository-code: "https://github.com/lwra-project/lwra"
+url: "https://github.com/lwra-project/lwra"
+references:
+  - type: standard
+    title: "API Recommended Practice 90: Annular Casing Pressure Management for Offshore Wells"
+    abbreviation: "API RP 90"
+    institution:
+      name: "American Petroleum Institute"
+  - type: standard
+    title: "NORSOK D-010: Well Integrity in Drilling and Well Operations"
+    abbreviation: "NORSOK D-010"
+    institution:
+      name: "Standards Norway"
+  - type: standard
+    title: "ISO 27914: Carbon dioxide capture, transportation and geological storage — Geological storage"
+    abbreviation: "ISO 27914"
+    institution:
+      name: "International Organization for Standardization"

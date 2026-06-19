@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+    branches: ["master", "main"]
+
+jobs:
+  test:
+    name: pytest · ruff · mypy (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install core + dev dependencies
+        run: pip install -e ".[dev]"
+
+      # ── Lint ────────────────────────────────────────────────────────────────
+      - name: ruff — lint
+        run: ruff check src/ tests/ examples/
+
+      - name: ruff — format check
+        run: ruff format --check src/ tests/ examples/
+
+      # ── Type check ──────────────────────────────────────────────────────────
+      - name: mypy — strict type check
+        run: mypy src/lwra
+
+      # ── Tests ───────────────────────────────────────────────────────────────
+      - name: pytest (core — no optional deps)
+        run: pytest tests/ -q --tb=short
+
+      - name: Install all optional dependencies
+        run: pip install -e ".[all]"
+
+      - name: pytest (full suite with optional deps)
+        run: pytest tests/ -q --tb=short --cov=lwra --cov-report=term-missing
+
+      - name: Upload coverage report
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 7
