@@ -1,0 +1,86 @@
+# =============================================================================
+# Legacy Well Risk Assessment Tool -- Weights configuration
+# =============================================================================
+# This file externalises every weight used by the integrity and risk engines so
+# that the methodology is transparent, auditable, and tunable without code
+# changes. Weights are inspired by risk-based well-integrity philosophy
+# (API RP 90, NORSOK D-010, ISO 27914) but DO NOT claim official compliance.
+#
+# Conventions
+#   * All weight blocks within a group should sum to 1.0 (the loader validates
+#     this; the +/- tolerance is enforced in code, not here).
+#   * Higher integrity component scores mean BETTER integrity (0-100).
+#   * Higher risk factor contributions mean GREATER risk (0-100) before
+#     weighting.
+# =============================================================================
+
+schema_version: 1
+
+# -----------------------------------------------------------------------------
+# Integrity component weights
+# -----------------------------------------------------------------------------
+# Combined into the overall integrity score. The two engineered barriers facing
+# the source (primary) and the cement that creates the annular seal carry the
+# most weight, reflecting the well-barrier philosophy that loss of the source-
+# facing envelope is the most direct path to loss of containment. Plugging is
+# weighted meaningfully because, for permanently abandoned wells, plug
+# competence is the controlling long-term barrier.
+integrity_component_weights:
+  primary_barrier: 0.30        # Source-facing envelope: most consequential.
+  cement_quality: 0.25         # Annular seal continuity across caprock.
+  secondary_barrier: 0.20      # Independent backup envelope.
+  mechanical_integrity: 0.15   # Casing/tubing condition, corrosion, leaks.
+  plugging: 0.10               # Plug placement/length/verification.
+  # Sum = 1.00
+
+# -----------------------------------------------------------------------------
+# Risk factor weights
+# -----------------------------------------------------------------------------
+# Combined into the overall risk score. Integrity dominates because a degraded
+# barrier system is the primary driver of leakage likelihood. Fluid hazard and
+# receptor proximity are the next-heaviest because they govern the CONSEQUENCE
+# of a loss of containment. Pressure and temperature are secondary stressors
+# that accelerate degradation. Data uncertainty is included as an explicit
+# penalty so that poorly characterised wells are conservatively flagged.
+risk_factor_weights:
+  integrity_score: 0.35        # Inverse integrity: dominant likelihood driver.
+  fluid_hazard: 0.18           # CO2/H2S/gas elevate consequence severity.
+  proximity_to_receptors: 0.17 # Aquifers, faults, population near the well.
+  reservoir_pressure: 0.12     # Drive for migration; degradation stressor.
+  well_age: 0.08               # Time-dependent material degradation proxy.
+  temperature: 0.05            # Thermal stressor on cement/casing.
+  data_uncertainty: 0.05       # Conservative penalty for missing data.
+  # Sum = 1.00
+
+# -----------------------------------------------------------------------------
+# Likelihood / consequence split
+# -----------------------------------------------------------------------------
+# The risk matrix (architecture sec. 5) plots likelihood vs consequence. These
+# weights map each risk factor onto the likelihood and/or consequence axes so
+# the same factors can populate both the scalar risk score and the 2-D matrix.
+# Each factor's likelihood + consequence shares sum to 1.0.
+likelihood_consequence:
+  integrity_score:        { likelihood: 0.85, consequence: 0.15 }
+  well_age:               { likelihood: 0.90, consequence: 0.10 }
+  reservoir_pressure:     { likelihood: 0.60, consequence: 0.40 }
+  temperature:            { likelihood: 0.70, consequence: 0.30 }
+  fluid_hazard:           { likelihood: 0.10, consequence: 0.90 }
+  proximity_to_receptors: { likelihood: 0.05, consequence: 0.95 }
+  data_uncertainty:       { likelihood: 0.50, consequence: 0.50 }
+
+# -----------------------------------------------------------------------------
+# Fluid hazard scores (0-100)
+# -----------------------------------------------------------------------------
+# Maps lwra.models.enums.FluidType members to a normalised hazard contribution.
+# H2S is the most hazardous (toxicity + corrosion). CO2 is high because it is
+# corrosive in the presence of water and is the target medium for storage reuse
+# where leakage consequence is significant. Inert water is the lowest.
+fluid_hazard_scores:
+  h2s: 100        # Highly toxic and corrosive.
+  co2: 80         # Corrosive when wet; storage-relevant leakage consequence.
+  gas: 70         # Buoyant, mobile, flammable.
+  condensate: 60  # Volatile hydrocarbons.
+  multiphase: 55  # Mixed behaviour; treated above single-phase oil.
+  oil: 45         # Mobile but less buoyant/volatile than gas.
+  water: 15       # Low intrinsic hazard.
+  unknown: 70     # Conservative default when fluid is not characterised.

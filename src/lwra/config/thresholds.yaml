@@ -1,0 +1,129 @@
+# =============================================================================
+# Legacy Well Risk Assessment Tool -- Thresholds configuration
+# =============================================================================
+# Externalises all category boundaries, factor-normalisation parameters,
+# barrier-philosophy override rules, and forward-looking screening criteria for
+# CO2 storage and geothermal reuse. Tunable without code changes.
+#
+# Inspired by risk-based well-integrity philosophy (API RP 90, NORSOK D-010,
+# ISO 27914). DOES NOT claim official compliance with any standard.
+# =============================================================================
+
+schema_version: 1
+
+# -----------------------------------------------------------------------------
+# Integrity category thresholds (overall integrity score, 0-100, higher better)
+# -----------------------------------------------------------------------------
+# Boundaries are inclusive lower bounds. A score is GOOD if >= good.min, else
+# MODERATE if >= moderate.min, etc. "Good" starts at 80 to reserve the top band
+# for wells with verified, redundant barriers; "failed" below 40 captures wells
+# where the source-facing envelope cannot be relied upon.
+integrity_category_thresholds:
+  good: { min: 80.0 }       # 80-100  Verified, redundant barriers.
+  moderate: { min: 60.0 }   # 60-79   Adequate but with notable gaps.
+  poor: { min: 40.0 }       # 40-59   Significant deficiencies.
+  failed: { min: 0.0 }      # 0-39    Source-facing envelope unreliable.
+
+# -----------------------------------------------------------------------------
+# Risk category thresholds (overall risk score, 0-100, higher worse)
+# -----------------------------------------------------------------------------
+# Quartile-aligned bands per architecture sec. 5. Inclusive lower bounds.
+risk_category_thresholds:
+  low: { min: 0.0 }         # 0-25
+  medium: { min: 26.0 }     # 26-50
+  high: { min: 51.0 }       # 51-75
+  critical: { min: 76.0 }   # 76-100
+
+# -----------------------------------------------------------------------------
+# Factor normalisation
+# -----------------------------------------------------------------------------
+# Each risk factor is mapped to a 0-100 contribution before weighting. These
+# parameters define the mapping. Values at/below `low` map to 0 (lowest risk
+# contribution); values at/above `high` map to 100; linear in between unless
+# stated otherwise. `integrity_score` is inverted: better integrity -> lower
+# risk contribution.
+factor_normalisation:
+
+  integrity_score:
+    invert: true            # risk_contribution = 100 - integrity_score
+    low: 0.0
+    high: 100.0
+
+  well_age:                 # Years since spud (or since abandonment if known).
+    unit: years
+    low: 0.0                # New well -> minimal age-related risk.
+    high: 60.0              # >= 60 yr legacy wells -> maximal age contribution.
+    default_when_unknown: 50.0  # Conservative mid-high if dates missing.
+
+  reservoir_pressure:       # Overpressure ratio vs hydrostatic, or bar fallback.
+    unit: bar
+    low: 0.0
+    high: 600.0             # ~deep HPHT ceiling; >= maps to 100.
+    default_when_unknown: 50.0
+
+  temperature:
+    unit: celsius
+    low: 20.0               # Ambient -> negligible thermal stress.
+    high: 200.0             # HT ceiling; >= maps to 100.
+    default_when_unknown: 40.0
+
+  proximity_to_receptors:   # Distance to nearest sensitive receptor.
+    unit: metres
+    invert: true            # Closer -> higher risk, so invert distance.
+    low: 100.0              # <= 100 m -> maximal proximity risk (=100).
+    high: 5000.0            # >= 5 km -> negligible proximity risk (=0).
+    default_when_unknown: 60.0  # Conservative if proximity not assessed.
+
+  fluid_hazard:             # Looked up from weights.yaml: fluid_hazard_scores.
+    source: fluid_hazard_scores
+
+  data_uncertainty:         # Fraction of key fields missing, 0-1 -> 0-100.
+    low: 0.0
+    high: 1.0
+
+# -----------------------------------------------------------------------------
+# Integrity override rules (well-barrier philosophy)
+# -----------------------------------------------------------------------------
+# Hard caps that override the weighted aggregate, enforcing two-barrier logic:
+# strong scores elsewhere cannot mask a missing/unverified critical barrier.
+integrity_overrides:
+  # If no verified independent secondary barrier exists, the overall integrity
+  # score cannot exceed this value (single-barrier wells are not acceptable for
+  # permanent containment).
+  missing_verified_secondary_barrier_cap: 59.0
+  # If the primary (source-facing) barrier is failed/unverified, hard cap here.
+  failed_or_unverified_primary_cap: 39.0
+  # A barrier element is treated as "low confidence" below this raw condition
+  # score (0-1) even if marked verified, contributing a penalty.
+  low_confidence_condition_threshold: 0.40
+
+# -----------------------------------------------------------------------------
+# Forward-looking: CO2 storage screening (ISO 27914-inspired, non-compliant)
+# -----------------------------------------------------------------------------
+# Consumed by the future recommendation_engine CO2 submodule. Gates suitability
+# on containment-relevant criteria. A well that fails any "hard" gate is
+# UNSUITABLE; meeting all "preferred" criteria yields SUITABLE; otherwise
+# CONDITIONAL.
+co2_storage:
+  min_overall_integrity: 70.0       # CONDITIONAL floor.
+  preferred_overall_integrity: 85.0 # SUITABLE target.
+  max_risk_score: 50.0              # Above this -> UNSUITABLE.
+  require_verified_secondary_barrier: true
+  min_caprock_barrier_condition: 0.70   # Raw condition (0-1) over caprock.
+  disqualifying_fluids: []          # CO2 reuse not disqualified by prior fluid.
+  min_depth_m: 800.0                # Supercritical CO2 storage depth guidance.
+
+# -----------------------------------------------------------------------------
+# Forward-looking: Geothermal suitability screening
+# -----------------------------------------------------------------------------
+# Consumed by the future recommendation_engine geothermal submodule. Geothermal
+# reuse tolerates lower containment stringency than CO2 storage but requires
+# adequate temperature/depth for usable thermal energy.
+geothermal:
+  min_overall_integrity: 55.0       # CONDITIONAL floor (lower than CO2).
+  preferred_overall_integrity: 75.0 # SUITABLE target.
+  max_risk_score: 65.0
+  min_temperature_c: 60.0           # Direct-use lower bound.
+  preferred_temperature_c: 120.0    # Power-generation-relevant target.
+  min_depth_m: 1000.0               # Practical thermal-gradient depth.
+  require_verified_secondary_barrier: false

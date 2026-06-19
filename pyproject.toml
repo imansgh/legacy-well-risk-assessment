@@ -1,0 +1,76 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lwra"
+version = "0.1.0"
+description = "Legacy Well Risk Assessment Tool: integrity and reuse-potential screening for legacy oil and gas wells (CO2 storage, geothermal)."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "LWRA contributors" }]
+keywords = ["well integrity", "risk assessment", "CO2 storage", "geothermal", "petroleum engineering"]
+
+# Core runtime: models, config, all engines, pipeline.
+dependencies = [
+    "pydantic>=2.6",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+# Visualizations and report generation.
+viz = ["plotly>=5.20"]
+reports = ["plotly>=5.20", "reportlab>=4.0", "openpyxl>=3.1", "kaleido"]
+# HTTP backend.
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.29"]
+# Interactive dashboard.
+dashboard = ["streamlit>=1.30", "plotly>=5.20"]
+# Test + lint toolchain.
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "httpx",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+# Everything, for a full local environment.
+all = [
+    "plotly>=5.20",
+    "reportlab>=4.0",
+    "openpyxl>=3.1",
+    "kaleido",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "streamlit>=1.30",
+]
+
+[project.scripts]
+lwra-assess = "examples.assess_single_well:main"
+lwra-screen = "examples.screen_portfolio:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lwra"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "D"]
+ignore = ["D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]
+"examples/*" = ["D"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/lwra"]
