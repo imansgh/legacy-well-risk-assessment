@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import pytest
-from fastapi.testclient import TestClient
 
-from lwra.api.main import create_app
+pytest.importorskip("fastapi", reason="fastapi not installed — skipping API tests")
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+from lwra.api.main import create_app  # noqa: E402
 from lwra.sample_data import abandon_well, excellent_well
 
 
