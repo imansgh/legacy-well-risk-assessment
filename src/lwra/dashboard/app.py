@@ -115,7 +115,11 @@ def _render_single(assessment: WellAssessment, well: WellData) -> None:
             for flag in assessment.integrity.flags:
                 st.markdown(f"- {flag}")
 
-    _render_downloads(assessment, well)
+    if st.button("Prepare download reports"):
+        st.session_state["reports_ready"] = True
+
+    if st.session_state.get("reports_ready"):
+        _render_downloads(assessment, well)
 
     with st.expander("Calculation trace (JSON)"):
         st.json(assessment.trace)

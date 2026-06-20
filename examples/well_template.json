@@ -1,0 +1,70 @@
+{
+  "well_id": "WELL-001",
+  "name": "My Well Name",
+  "location": {
+    "latitude": 57.05,
+    "longitude": 2.85
+  },
+  "spud_date": "1995-06-01",
+  "abandonment_date": "2009-01-01",
+  "total_depth_m": 2500.0,
+  "well_type": "production",
+  "formation": "Forties",
+  "reservoir_fluid": "oil",
+  "pressure_bar": 300.0,
+  "temperature_c": 95.0,
+  "proximity_to_receptors_m": 1500.0,
+  "casing_strings": [
+    {
+      "name": "surface",
+      "outer_diameter_in": 13.375,
+      "depth_top_m": 0.0,
+      "depth_bottom_m": 800.0,
+      "cemented": true
+    },
+    {
+      "name": "production",
+      "outer_diameter_in": 9.625,
+      "depth_top_m": 0.0,
+      "depth_bottom_m": 2400.0,
+      "cemented": false
+    }
+  ],
+  "barriers": [
+    {
+      "barrier_id": "P-CEM-01",
+      "barrier_type": "primary",
+      "element": "cement",
+      "depth_top_m": 1900.0,
+      "depth_bottom_m": 2400.0,
+      "condition_score": 0.72,
+      "verified": true,
+      "verification_method": "CBL log"
+    },
+    {
+      "barrier_id": "P-CAS-01",
+      "barrier_type": "primary",
+      "element": "casing",
+      "depth_top_m": 0.0,
+      "depth_bottom_m": 2400.0,
+      "condition_score": 0.65,
+      "verified": false,
+      "verification_method": ""
+    },
+    {
+      "barrier_id": "S-PLUG-01",
+      "barrier_type": "secondary",
+      "element": "plug",
+      "depth_top_m": 850.0,
+      "depth_bottom_m": 920.0,
+      "condition_score": 0.80,
+      "verified": true,
+      "verification_method": "tag + pressure test"
+    }
+  ],
+  "metadata": {
+    "operator": "My Company",
+    "field": "My Field",
+    "notes": ""
+  }
+}
