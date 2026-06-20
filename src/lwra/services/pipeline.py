@@ -9,9 +9,9 @@ through here rather than wiring the three engines together themselves.
 It contains **no business logic** of its own. It composes, in order:
 
     WellData
-        -> integrity_engine.assess_integrity_traced
-        -> risk_engine.assess_risk_traced
-        -> recommendation_engine.assess_recommendations_traced
+        -> integrity_engine.assess_integrity[_traced]
+        -> risk_engine.assess_risk[_traced]
+        -> recommendation_engine.assess_recommendations[_traced]
 
 and packages the three immutable result objects (plus an optional combined
 trace) into a single frozen :class:`WellAssessment` aggregate.
@@ -40,6 +40,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from lwra.integrity_engine import (
+    assess_integrity,
     assess_integrity_traced,
     has_verified_secondary_barrier,
     primary_is_failed_or_unverified,
@@ -50,8 +51,8 @@ from lwra.models.results import (
     RiskResult,
 )
 from lwra.models.well import WellData
-from lwra.recommendation_engine import assess_recommendations_traced
-from lwra.risk_engine import assess_risk_traced
+from lwra.recommendation_engine import assess_recommendations, assess_recommendations_traced
+from lwra.risk_engine import assess_risk, assess_risk_traced
 
 __all__ = [
     "WellAssessment",
@@ -237,17 +238,17 @@ def assess_well(
     """
     reference_date = _resolve_as_of(as_of)
 
-    integrity = assess_integrity_traced(well)[0]
-    risk = assess_risk_traced(well, integrity, as_of=reference_date)[0]
+    integrity = assess_integrity(well)
+    risk = assess_risk(well, integrity, as_of=reference_date)
     has_verified_secondary = has_verified_secondary_barrier(well.barriers)
     primary_unreliable = primary_is_failed_or_unverified(well.barriers)
-    recommendation = assess_recommendations_traced(
+    recommendation = assess_recommendations(
         well,
         integrity,
         risk,
         has_verified_secondary=has_verified_secondary,
         primary_failed_or_unverified=primary_unreliable,
-    )[0]
+    )
 
     return WellAssessment(
         well_id=well.well_id,

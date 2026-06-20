@@ -101,6 +101,7 @@ def evaluate_plugging(
         }
 
     fragments: list[dict[str, Any]] = []
+    raw_lengths: list[float] = []          # unrounded, used for the weighted mean
     for b in plugs:
         base = condition_to_score(b.condition_score)
         vfactor = verification_factor(
@@ -110,6 +111,7 @@ def evaluate_plugging(
         )
         element_score = clamp(base * vfactor)
         length_m = b.depth_bottom_m - b.depth_top_m
+        raw_lengths.append(length_m)
         fragments.append(
             {
                 "barrier_id": b.barrier_id,
@@ -122,10 +124,12 @@ def evaluate_plugging(
             }
         )
 
-    total_length = sum(f["interval_length_m"] for f in fragments)
+    # Use raw (unrounded) lengths so very short plug intervals are not zeroed
+    # by rounding before the sum, which would also corrupt the length_ratio.
+    total_length = sum(raw_lengths)
     if total_length > 0:
         condition_component = clamp(
-            sum(f["element_score"] * f["interval_length_m"] for f in fragments)
+            sum(f["element_score"] * l for f, l in zip(fragments, raw_lengths))
             / total_length
         )
     else:  # pragma: no cover - guarded by model validation

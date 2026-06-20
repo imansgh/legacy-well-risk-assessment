@@ -45,10 +45,6 @@ all = [
     "streamlit>=1.30",
 ]
 
-[project.scripts]
-lwra-assess = "examples.assess_single_well:main"
-lwra-screen = "examples.screen_portfolio:main"
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/lwra"]
 

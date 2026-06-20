@@ -127,10 +127,13 @@ def evaluate_barrier_role(
         }
         return 0.0, trace
 
-    total_length = sum(f["interval_length_m"] for f in fragments)
+    # Derive raw lengths from the source barriers (not from the rounded values
+    # stored in the trace fragments) so very short intervals are not zeroed.
+    raw_lengths = [b.depth_bottom_m - b.depth_top_m for b in role_barriers]
+    total_length = sum(raw_lengths)
     if total_length > 0:
         weighted = sum(
-            f["barrier_score"] * f["interval_length_m"] for f in fragments
+            f["barrier_score"] * l for f, l in zip(fragments, raw_lengths)
         )
         role_score = clamp(weighted / total_length)
         aggregation = "interval-length-weighted mean"

@@ -76,6 +76,7 @@ def evaluate_cement_quality(
 
     # Per-element condition scores with verification discount.
     fragments: list[dict[str, Any]] = []
+    raw_lengths: list[float] = []          # unrounded, used for the weighted mean
     intervals: list[tuple[float, float]] = []
     for b in cement:
         base = condition_to_score(b.condition_score)
@@ -86,6 +87,7 @@ def evaluate_cement_quality(
         )
         element_score = clamp(base * vfactor)
         length_m = b.depth_bottom_m - b.depth_top_m
+        raw_lengths.append(length_m)
         intervals.append((b.depth_top_m, b.depth_bottom_m))
         fragments.append(
             {
@@ -101,11 +103,12 @@ def evaluate_cement_quality(
             }
         )
 
-    # Length-weighted mean condition.
-    total_length = sum(f["interval_length_m"] for f in fragments)
+    # Length-weighted mean condition — use raw (unrounded) lengths so that
+    # very short intervals are not zeroed by rounding before the sum.
+    total_length = sum(raw_lengths)
     if total_length > 0:
         condition_component = clamp(
-            sum(f["element_score"] * f["interval_length_m"] for f in fragments)
+            sum(f["element_score"] * l for f, l in zip(fragments, raw_lengths))
             / total_length
         )
     else:  # pragma: no cover - guarded by model validation

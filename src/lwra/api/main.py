@@ -220,7 +220,7 @@ def create_app() -> FastAPI:
         tmp_dir = Path(tempfile.mkdtemp(prefix="lwra_report_"))
 
         if fmt_lower == "json":
-            path = write_json_report(assessment, tmp_dir, traced=request.traced)
+            path = write_json_report(assessment, tmp_dir, traced=True)
             media_type = "application/json"
         elif fmt_lower == "excel":
             path = write_excel_report(request.well, assessment, tmp_dir)

@@ -237,10 +237,17 @@ def assess_co2_storage_suitability(
     }
     failed = [g["gate"] for g in gates if g["gate"] in hard_gate_names and not g["passed"]]
 
-    if not caprock_known:
+    # Hard-gate failures that don't depend on caprock knowledge are always
+    # UNSUITABLE, even when the caprock condition is also unknown.  Check those
+    # first so data absence cannot mask a genuine safety failure.
+    non_caprock_failed = [g for g in failed if g != "min_caprock_barrier_condition"]
+    if non_caprock_failed:
+        level = SuitabilityLevel.UNSUITABLE
+        reason = f"failed hard gate(s): {', '.join(failed)}"
+    elif not caprock_known:
         level = SuitabilityLevel.INSUFFICIENT_DATA
         reason = "caprock condition unknown (no cement barrier)"
-    elif failed:
+    elif failed:  # caprock gate failed with a known (low) condition score
         level = SuitabilityLevel.UNSUITABLE
         reason = f"failed hard gate(s): {', '.join(failed)}"
     elif integrity.overall_integrity_score >= cfg["preferred_overall_integrity"]:
@@ -357,10 +364,16 @@ def assess_geothermal_suitability(
     }
     failed = [g["gate"] for g in gates if g["gate"] in hard_gate_names and not g["passed"]]
 
-    if not temp_known:
+    # Failures on temperature-independent hard gates are always UNSUITABLE even
+    # when temperature is unknown — data absence cannot mask a safety failure.
+    non_temp_failed = [g for g in failed if g != "min_temperature_c"]
+    if non_temp_failed:
+        level = SuitabilityLevel.UNSUITABLE
+        reason = f"failed hard gate(s): {', '.join(failed)}"
+    elif not temp_known:
         level = SuitabilityLevel.INSUFFICIENT_DATA
         reason = "temperature unknown (thermal resource cannot be judged)"
-    elif failed:
+    elif failed:  # only temperature gate failed, temperature is known
         level = SuitabilityLevel.UNSUITABLE
         reason = f"failed hard gate(s): {', '.join(failed)}"
     elif (
