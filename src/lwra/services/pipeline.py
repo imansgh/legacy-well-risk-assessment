@@ -34,7 +34,7 @@ persisted or served.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -63,7 +63,7 @@ __all__ = [
 
 def _utcnow() -> datetime:
     """Return the current timezone-aware UTC timestamp."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class WellAssessment(BaseModel):
@@ -88,6 +88,7 @@ class WellAssessment(BaseModel):
         assessed_at: UTC timestamp the assessment was assembled.
         trace: Optional combined calculation trace (present only for the traced
             entry point).
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -95,19 +96,15 @@ class WellAssessment(BaseModel):
     well_id: str = Field(..., min_length=1, description="Assessed well identifier.")
     integrity: IntegrityResult = Field(..., description="Integrity assessment result.")
     risk: RiskResult = Field(..., description="Risk assessment result.")
-    recommendation: RecommendationResult = Field(
-        ..., description="Recommendation result."
-    )
+    recommendation: RecommendationResult = Field(..., description="Recommendation result.")
     as_of: date = Field(..., description="Assessment reference date.")
-    assessed_at: datetime = Field(
-        default_factory=_utcnow, description="UTC timestamp of assembly."
-    )
+    assessed_at: datetime = Field(default_factory=_utcnow, description="UTC timestamp of assembly.")
     trace: dict[str, Any] | None = Field(
         default=None, description="Optional combined calculation trace."
     )
 
     @model_validator(mode="after")
-    def _validate_well_id_consistency(self) -> "WellAssessment":
+    def _validate_well_id_consistency(self) -> WellAssessment:
         """Ensure every bundled result refers to the same well."""
         ids = {
             self.well_id,
@@ -146,6 +143,7 @@ def _resolve_as_of(as_of: date | None) -> date:
 
     Returns:
         ``as_of`` if provided, otherwise :func:`date.today`.
+
     """
     return as_of if as_of is not None else date.today()
 
@@ -173,6 +171,7 @@ def assess_well_traced(
     Raises:
         ValueError: If the engines produce results for inconsistent well IDs
             (guarded by :class:`WellAssessment`).
+
     """
     reference_date = _resolve_as_of(as_of)
 
@@ -235,6 +234,7 @@ def assess_well(
     Raises:
         ValueError: If the engines produce results for inconsistent well IDs
             (guarded by :class:`WellAssessment`).
+
     """
     reference_date = _resolve_as_of(as_of)
 

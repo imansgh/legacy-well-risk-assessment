@@ -29,16 +29,13 @@ class GeoLocation(BaseModel):
     Attributes:
         latitude: Latitude in decimal degrees, range [-90, 90].
         longitude: Longitude in decimal degrees, range [-180, 180].
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    latitude: float = Field(
-        ..., ge=-90.0, le=90.0, description="Latitude in decimal degrees."
-    )
-    longitude: float = Field(
-        ..., ge=-180.0, le=180.0, description="Longitude in decimal degrees."
-    )
+    latitude: float = Field(..., ge=-90.0, le=90.0, description="Latitude in decimal degrees.")
+    longitude: float = Field(..., ge=-180.0, le=180.0, description="Longitude in decimal degrees.")
 
 
 class WellData(BaseModel):
@@ -63,6 +60,7 @@ class WellData(BaseModel):
         proximity_to_receptors_m: Distance to nearest sensitive receptor (m).
         barriers: Observed well barriers feeding the integrity engine.
         metadata: Arbitrary additional key/value metadata.
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -70,21 +68,11 @@ class WellData(BaseModel):
     well_id: str = Field(..., min_length=1, description="Unique well identifier.")
     name: str = Field(..., min_length=1, description="Human-readable well name.")
     location: GeoLocation = Field(..., description="Wellhead coordinate.")
-    spud_date: date | None = Field(
-        default=None, description="Date drilling commenced."
-    )
-    abandonment_date: date | None = Field(
-        default=None, description="Date the well was abandoned."
-    )
-    total_depth_m: float = Field(
-        ..., gt=0, description="Total measured depth (m)."
-    )
-    well_type: WellType = Field(
-        default=WellType.UNKNOWN, description="Functional classification."
-    )
-    formation: str = Field(
-        default="", description="Target/reservoir formation name."
-    )
+    spud_date: date | None = Field(default=None, description="Date drilling commenced.")
+    abandonment_date: date | None = Field(default=None, description="Date the well was abandoned.")
+    total_depth_m: float = Field(..., gt=0, description="Total measured depth (m).")
+    well_type: WellType = Field(default=WellType.UNKNOWN, description="Functional classification.")
+    formation: str = Field(default="", description="Target/reservoir formation name.")
     reservoir_fluid: FluidType = Field(
         default=FluidType.UNKNOWN, description="Dominant reservoir fluid."
     )
@@ -108,7 +96,7 @@ class WellData(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _validate_dates(self) -> "WellData":
+    def _validate_dates(self) -> WellData:
         """Ensure abandonment does not precede spud."""
         if (
             self.spud_date is not None
@@ -122,7 +110,7 @@ class WellData(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _validate_barrier_depths(self) -> "WellData":
+    def _validate_barrier_depths(self) -> WellData:
         """Ensure barriers and casing strings lie within total depth."""
         for barrier in self.barriers:
             if barrier.depth_bottom_m > self.total_depth_m:
@@ -139,7 +127,7 @@ class WellData(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _validate_unique_barrier_ids(self) -> "WellData":
+    def _validate_unique_barrier_ids(self) -> WellData:
         """Ensure barrier identifiers are unique within the well."""
         ids = [barrier.barrier_id for barrier in self.barriers]
         if len(ids) != len(set(ids)):

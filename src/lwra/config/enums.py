@@ -12,7 +12,7 @@ can look up configuration with, e.g., ``weights[RiskFactor.WELL_AGE.value]``.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 __all__ = [
     "RiskFactor",
@@ -21,7 +21,7 @@ __all__ = [
 ]
 
 
-class RiskFactor(str, Enum):
+class RiskFactor(StrEnum):
     """Named factors combined by the risk engine.
 
     The ``risk_factor_weights`` block of ``weights.yaml`` must define exactly
@@ -38,7 +38,7 @@ class RiskFactor(str, Enum):
     DATA_UNCERTAINTY = "data_uncertainty"
 
 
-class IntegrityComponent(str, Enum):
+class IntegrityComponent(StrEnum):
     """Named components combined by the integrity engine.
 
     The ``integrity_component_weights`` block of ``weights.yaml`` must define
@@ -52,7 +52,7 @@ class IntegrityComponent(str, Enum):
     PLUGGING = "plugging"
 
 
-class ConfigSection(str, Enum):
+class ConfigSection(StrEnum):
     """Top-level sections expected in the YAML configuration files."""
 
     # weights.yaml

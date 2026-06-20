@@ -102,6 +102,7 @@ def prettify_key(key: str) -> str:
 
     Returns:
         A display label (e.g. ``"Cement Quality"``).
+
     """
     return PRETTY.get(key, key.replace("_", " ").title())
 
@@ -120,6 +121,7 @@ def base_layout(title: str, *, height: int = 400, width: int | None = None) -> g
 
     Returns:
         A configured :class:`plotly.graph_objects.Layout`.
+
     """
     layout = go.Layout(
         title={"text": title, "x": 0.5, "xanchor": "center"},
@@ -152,6 +154,7 @@ def apply_base_layout(
 
     Returns:
         The same figure, restyled (returned for fluent chaining).
+
     """
     fig.update_layout(base_layout(title, height=height, width=width))
     return fig

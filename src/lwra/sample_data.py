@@ -27,10 +27,11 @@ __all__ = [
 
 
 def excellent_well() -> WellData:
-    """A deep, hot, verified-redundant well with benign fluid (reuse candidate).
+    """Return a deep, hot, verified-redundant well with benign fluid (reuse candidate).
 
     Returns:
         A :class:`WellData` expected to score well on integrity and low on risk.
+
     """
     return WellData(
         well_id="WELL-EXCELLENT",
@@ -46,25 +47,62 @@ def excellent_well() -> WellData:
         temperature_c=135.0,
         proximity_to_receptors_m=4800.0,
         casing_strings=(
-            CasingString(name="surface", outer_diameter_in=13.375, depth_top_m=0.0, depth_bottom_m=900.0, cemented=True),
-            CasingString(name="production", outer_diameter_in=9.625, depth_top_m=0.0, depth_bottom_m=2750.0, cemented=True),
+            CasingString(
+                name="surface",
+                outer_diameter_in=13.375,
+                depth_top_m=0.0,
+                depth_bottom_m=900.0,
+                cemented=True,
+            ),
+            CasingString(
+                name="production",
+                outer_diameter_in=9.625,
+                depth_top_m=0.0,
+                depth_bottom_m=2750.0,
+                cemented=True,
+            ),
         ),
         barriers=(
-            BarrierData(barrier_id="P-CEM", barrier_type=BarrierType.PRIMARY, element=BarrierElement.CEMENT,
-                        depth_top_m=2300.0, depth_bottom_m=2750.0, condition_score=0.95, verified=True, verification_method="CBL/USIT"),
-            BarrierData(barrier_id="P-CAS", barrier_type=BarrierType.PRIMARY, element=BarrierElement.CASING,
-                        depth_top_m=0.0, depth_bottom_m=2750.0, condition_score=0.90, verified=True, verification_method="multi-finger caliper"),
-            BarrierData(barrier_id="S-PLUG", barrier_type=BarrierType.SECONDARY, element=BarrierElement.PLUG,
-                        depth_top_m=1000.0, depth_bottom_m=1060.0, condition_score=0.92, verified=True, verification_method="tag + pressure test"),
+            BarrierData(
+                barrier_id="P-CEM",
+                barrier_type=BarrierType.PRIMARY,
+                element=BarrierElement.CEMENT,
+                depth_top_m=2300.0,
+                depth_bottom_m=2750.0,
+                condition_score=0.95,
+                verified=True,
+                verification_method="CBL/USIT",
+            ),
+            BarrierData(
+                barrier_id="P-CAS",
+                barrier_type=BarrierType.PRIMARY,
+                element=BarrierElement.CASING,
+                depth_top_m=0.0,
+                depth_bottom_m=2750.0,
+                condition_score=0.90,
+                verified=True,
+                verification_method="multi-finger caliper",
+            ),
+            BarrierData(
+                barrier_id="S-PLUG",
+                barrier_type=BarrierType.SECONDARY,
+                element=BarrierElement.PLUG,
+                depth_top_m=1000.0,
+                depth_bottom_m=1060.0,
+                condition_score=0.92,
+                verified=True,
+                verification_method="tag + pressure test",
+            ),
         ),
     )
 
 
 def remediation_well() -> WellData:
-    """A moderate well with an unverified secondary barrier (remediation case).
+    """Return a moderate well with an unverified secondary barrier (remediation case).
 
     Returns:
         A :class:`WellData` expected to land in the remediate band.
+
     """
     return WellData(
         well_id="WELL-REMEDIATE",
@@ -80,26 +118,61 @@ def remediation_well() -> WellData:
         temperature_c=95.0,
         proximity_to_receptors_m=1500.0,
         casing_strings=(
-            CasingString(name="surface", outer_diameter_in=13.375, depth_top_m=0.0, depth_bottom_m=800.0, cemented=True),
-            CasingString(name="production", outer_diameter_in=9.625, depth_top_m=0.0, depth_bottom_m=2400.0, cemented=False),
+            CasingString(
+                name="surface",
+                outer_diameter_in=13.375,
+                depth_top_m=0.0,
+                depth_bottom_m=800.0,
+                cemented=True,
+            ),
+            CasingString(
+                name="production",
+                outer_diameter_in=9.625,
+                depth_top_m=0.0,
+                depth_bottom_m=2400.0,
+                cemented=False,
+            ),
         ),
         barriers=(
-            BarrierData(barrier_id="P-CEM", barrier_type=BarrierType.PRIMARY, element=BarrierElement.CEMENT,
-                        depth_top_m=1900.0, depth_bottom_m=2400.0, condition_score=0.72, verified=True, verification_method="CBL"),
-            BarrierData(barrier_id="P-CAS", barrier_type=BarrierType.PRIMARY, element=BarrierElement.CASING,
-                        depth_top_m=0.0, depth_bottom_m=2400.0, condition_score=0.65, verified=False),
-            BarrierData(barrier_id="S-PLUG", barrier_type=BarrierType.SECONDARY, element=BarrierElement.PLUG,
-                        depth_top_m=850.0, depth_bottom_m=920.0, condition_score=0.60, verified=True,
-                        verification_method="tag"),
+            BarrierData(
+                barrier_id="P-CEM",
+                barrier_type=BarrierType.PRIMARY,
+                element=BarrierElement.CEMENT,
+                depth_top_m=1900.0,
+                depth_bottom_m=2400.0,
+                condition_score=0.72,
+                verified=True,
+                verification_method="CBL",
+            ),
+            BarrierData(
+                barrier_id="P-CAS",
+                barrier_type=BarrierType.PRIMARY,
+                element=BarrierElement.CASING,
+                depth_top_m=0.0,
+                depth_bottom_m=2400.0,
+                condition_score=0.65,
+                verified=False,
+            ),
+            BarrierData(
+                barrier_id="S-PLUG",
+                barrier_type=BarrierType.SECONDARY,
+                element=BarrierElement.PLUG,
+                depth_top_m=850.0,
+                depth_bottom_m=920.0,
+                condition_score=0.60,
+                verified=True,
+                verification_method="tag",
+            ),
         ),
     )
 
 
 def abandon_well() -> WellData:
-    """A shallow, failed-primary, H2S well close to receptors (abandon case).
+    """Return a shallow, failed-primary, H2S well close to receptors (abandon case).
 
     Returns:
         A :class:`WellData` expected to score critically and verdict to abandon.
+
     """
     return WellData(
         well_id="WELL-ABANDON",
@@ -115,21 +188,35 @@ def abandon_well() -> WellData:
         temperature_c=40.0,
         proximity_to_receptors_m=90.0,
         casing_strings=(
-            CasingString(name="production", outer_diameter_in=7.0, depth_top_m=0.0, depth_bottom_m=820.0, cemented=False),
+            CasingString(
+                name="production",
+                outer_diameter_in=7.0,
+                depth_top_m=0.0,
+                depth_bottom_m=820.0,
+                cemented=False,
+            ),
         ),
         barriers=(
-            BarrierData(barrier_id="P-CEM", barrier_type=BarrierType.PRIMARY, element=BarrierElement.CEMENT,
-                        depth_top_m=600.0, depth_bottom_m=820.0, condition_score=0.20, verified=False),
+            BarrierData(
+                barrier_id="P-CEM",
+                barrier_type=BarrierType.PRIMARY,
+                element=BarrierElement.CEMENT,
+                depth_top_m=600.0,
+                depth_bottom_m=820.0,
+                condition_score=0.20,
+                verified=False,
+            ),
         ),
     )
 
 
 def data_poor_well() -> WellData:
-    """A sparsely characterised well (insufficient-data screening case).
+    """Return a sparsely characterised well (insufficient-data screening case).
 
     Returns:
         A :class:`WellData` with missing dates, pressure, temperature, proximity,
         and an unknown fluid, exercising the conservative data-uncertainty path.
+
     """
     return WellData(
         well_id="WELL-DATAPOOR",
@@ -139,13 +226,35 @@ def data_poor_well() -> WellData:
         well_type=WellType.UNKNOWN,
         reservoir_fluid=FluidType.UNKNOWN,
         casing_strings=(
-            CasingString(name="production", outer_diameter_in=9.625, depth_top_m=0.0, depth_bottom_m=2400.0, cemented=True),
+            CasingString(
+                name="production",
+                outer_diameter_in=9.625,
+                depth_top_m=0.0,
+                depth_bottom_m=2400.0,
+                cemented=True,
+            ),
         ),
         barriers=(
-            BarrierData(barrier_id="P-CAS", barrier_type=BarrierType.PRIMARY, element=BarrierElement.CASING,
-                        depth_top_m=0.0, depth_bottom_m=2400.0, condition_score=0.80, verified=True, verification_method="caliper"),
-            BarrierData(barrier_id="S-PLUG", barrier_type=BarrierType.SECONDARY, element=BarrierElement.PLUG,
-                        depth_top_m=900.0, depth_bottom_m=950.0, condition_score=0.80, verified=True, verification_method="tag"),
+            BarrierData(
+                barrier_id="P-CAS",
+                barrier_type=BarrierType.PRIMARY,
+                element=BarrierElement.CASING,
+                depth_top_m=0.0,
+                depth_bottom_m=2400.0,
+                condition_score=0.80,
+                verified=True,
+                verification_method="caliper",
+            ),
+            BarrierData(
+                barrier_id="S-PLUG",
+                barrier_type=BarrierType.SECONDARY,
+                element=BarrierElement.PLUG,
+                depth_top_m=900.0,
+                depth_bottom_m=950.0,
+                condition_score=0.80,
+                verified=True,
+                verification_method="tag",
+            ),
         ),
     )
 
@@ -155,5 +264,6 @@ def sample_portfolio() -> tuple[WellData, ...]:
 
     Returns:
         A tuple of all sample wells, suitable for batch-screening demos.
+
     """
     return (excellent_well(), remediation_well(), abandon_well(), data_poor_well())

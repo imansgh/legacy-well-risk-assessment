@@ -86,6 +86,7 @@ def compute_well_age_years(
 
     Returns:
         Age in years (float), or ``None`` if the spud date is unknown.
+
     """
     if well.spud_date is None:
         return None
@@ -104,6 +105,7 @@ def compute_data_uncertainty(well: WellData) -> tuple[float, dict[str, bool]]:
         ``(fraction_missing, presence_map)`` where ``fraction_missing`` is in
         [0, 1] and ``presence_map`` records which fields were considered
         missing (``True`` == missing).
+
     """
     missing: dict[str, bool] = {}
     for field in _UNCERTAINTY_FIELDS:
@@ -134,6 +136,7 @@ def extract_factor_values(
         ``(raw_values, extraction_trace)`` where ``raw_values`` maps each
         :class:`RiskFactor` value to its raw input (or ``None`` if unavailable)
         and ``extraction_trace`` records how each was derived.
+
     """
     age_years = compute_well_age_years(well, as_of=as_of)
     uncertainty_fraction, presence_map = compute_data_uncertainty(well)
@@ -152,9 +155,7 @@ def extract_factor_values(
     extraction_trace: dict[str, Any] = {
         "integrity_score": integrity.overall_integrity_score,
         "well_age_years": (round_score(age_years) if age_years is not None else None),
-        "well_age_basis": (
-            "spud->abandonment" if well.abandonment_date else "spud->as_of"
-        ),
+        "well_age_basis": ("spud->abandonment" if well.abandonment_date else "spud->as_of"),
         "reservoir_pressure_bar": well.pressure_bar,
         "temperature_c": well.temperature_c,
         "reservoir_fluid": well.reservoir_fluid.value,
@@ -179,6 +180,7 @@ def dominant_drivers(
     Returns:
         An ordered tuple of factor keys, highest weighted contribution first.
         Factors contributing zero are excluded.
+
     """
     ranked = sorted(weighted_factors.items(), key=lambda kv: kv[1], reverse=True)
     return tuple(name for name, contribution in ranked[:top_n] if contribution > 0.0)
@@ -204,6 +206,7 @@ def assess_risk_traced(
 
     Raises:
         ValueError: If ``well`` and ``integrity`` refer to different wells.
+
     """
     if well.well_id != integrity.well_id:
         raise ValueError(
@@ -314,6 +317,7 @@ def assess_risk(
 
     Returns:
         A fully populated, immutable :class:`RiskResult`.
+
     """
     result, _ = assess_risk_traced(well, integrity, as_of=as_of)
     return result

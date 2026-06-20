@@ -32,7 +32,6 @@ from lwra.integrity_engine._scoring import (
     clamp,
     condition_to_score,
     integrity_overrides,
-    interval_coverage_fraction,
     round_score,
     verification_factor,
 )
@@ -65,6 +64,7 @@ def _barrier_score(
 
     Returns:
         A trace dict containing the inputs and every intermediate quantity.
+
     """
     base = condition_to_score(barrier.condition_score)
     vfactor = verification_factor(
@@ -108,14 +108,13 @@ def evaluate_barrier_role(
     Returns:
         A tuple of ``(role_score, trace)`` where ``trace`` records every
         per-barrier fragment and the aggregation arithmetic.
+
     """
     overrides = integrity_overrides()
     low_conf = overrides["low_confidence_condition_threshold"]
 
     role_barriers = [b for b in barriers if b.barrier_type is role]
-    fragments = [
-        _barrier_score(b, low_confidence_threshold=low_conf) for b in role_barriers
-    ]
+    fragments = [_barrier_score(b, low_confidence_threshold=low_conf) for b in role_barriers]
 
     if not fragments:
         trace: dict[str, Any] = {
@@ -133,7 +132,7 @@ def evaluate_barrier_role(
     total_length = sum(raw_lengths)
     if total_length > 0:
         weighted = sum(
-            f["barrier_score"] * l for f, l in zip(fragments, raw_lengths)
+            f["barrier_score"] * length for f, length in zip(fragments, raw_lengths, strict=False)
         )
         role_score = clamp(weighted / total_length)
         aggregation = "interval-length-weighted mean"
@@ -165,6 +164,7 @@ def evaluate_primary_barrier(
 
     Returns:
         ``(primary_barrier_score, trace)`` on a 0-100 scale.
+
     """
     score, trace = evaluate_barrier_role(barriers, BarrierType.PRIMARY)
     trace["component"] = "primary_barrier"
@@ -185,6 +185,7 @@ def evaluate_secondary_barrier(
 
     Returns:
         ``(secondary_barrier_score, trace)`` on a 0-100 scale.
+
     """
     score, trace = evaluate_barrier_role(barriers, BarrierType.SECONDARY)
     trace["component"] = "secondary_barrier"
@@ -202,10 +203,9 @@ def has_verified_secondary_barrier(barriers: tuple[BarrierData, ...]) -> bool:
 
     Returns:
         ``True`` if any secondary barrier is marked verified.
+
     """
-    return any(
-        b.barrier_type is BarrierType.SECONDARY and b.verified for b in barriers
-    )
+    return any(b.barrier_type is BarrierType.SECONDARY and b.verified for b in barriers)
 
 
 def primary_is_failed_or_unverified(barriers: tuple[BarrierData, ...]) -> bool:
@@ -220,11 +220,9 @@ def primary_is_failed_or_unverified(barriers: tuple[BarrierData, ...]) -> bool:
 
     Returns:
         ``True`` if no credible, verified primary barrier exists.
+
     """
     primaries = [b for b in barriers if b.barrier_type is BarrierType.PRIMARY]
     if not primaries:
         return True
-    return not any(
-        b.verified and b.condition_score > _PRIMARY_FAILED_CONDITION
-        for b in primaries
-    )
+    return not any(b.verified and b.condition_score > _PRIMARY_FAILED_CONDITION for b in primaries)

@@ -71,6 +71,7 @@ def load_weights() -> dict[str, Any]:
     Raises:
         FileNotFoundError: If the weights file is missing.
         ValueError: If the file does not parse to a mapping.
+
     """
     return _load_yaml(CONFIG_DIR / "weights.yaml")
 
@@ -85,6 +86,7 @@ def load_thresholds() -> dict[str, Any]:
     Raises:
         FileNotFoundError: If the thresholds file is missing.
         ValueError: If the file does not parse to a mapping.
+
     """
     return _load_yaml(CONFIG_DIR / "thresholds.yaml")
 
@@ -109,6 +111,7 @@ def integrity_component_weights() -> dict[str, float]:
     Raises:
         KeyError: If the block is absent.
         ValueError: If the weights do not sum to 1.0 within tolerance.
+
     """
     weights = load_weights()
     try:
@@ -117,9 +120,7 @@ def integrity_component_weights() -> dict[str, float]:
         raise KeyError("'integrity_component_weights' missing from weights.yaml") from exc
     total = sum(block.values())
     if abs(total - 1.0) > 1e-6:
-        raise ValueError(
-            f"integrity_component_weights must sum to 1.0 (got {total:.6f})."
-        )
+        raise ValueError(f"integrity_component_weights must sum to 1.0 (got {total:.6f}).")
     return block
 
 
@@ -131,6 +132,7 @@ def integrity_overrides() -> dict[str, float]:
 
     Raises:
         KeyError: If the override block is absent.
+
     """
     thresholds = load_thresholds()
     try:
@@ -150,6 +152,7 @@ def clamp(value: float, low: float = 0.0, high: float = 100.0) -> float:
 
     Returns:
         ``value`` constrained to ``[low, high]``.
+
     """
     return max(low, min(high, value))
 
@@ -162,6 +165,7 @@ def round_score(value: float) -> float:
 
     Returns:
         ``value`` rounded to :data:`ROUNDING_DP` decimal places.
+
     """
     return round(value, ROUNDING_DP)
 
@@ -177,6 +181,7 @@ def condition_to_score(condition: float) -> float:
 
     Returns:
         The condition expressed on a 0-100 scale.
+
     """
     return clamp(condition * 100.0)
 
@@ -207,6 +212,7 @@ def verification_factor(
 
     Returns:
         A trust factor in (0, 1].
+
     """
     if not verified:
         return _UNVERIFIED_DISCOUNT
@@ -225,6 +231,7 @@ def merge_intervals(
 
     Returns:
         A sorted list of non-overlapping ``(top_m, bottom_m)`` intervals.
+
     """
     if not intervals:
         return []
@@ -256,6 +263,7 @@ def interval_coverage_fraction(
 
     Returns:
         Covered fraction in [0, 1]. Returns 0.0 for a non-positive window.
+
     """
     window = target_bottom_m - target_top_m
     if window <= 0:

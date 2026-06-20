@@ -58,6 +58,7 @@ def weighted_risk_contributions(
 
     Returns:
         A horizontal bar figure of weighted contributions.
+
     """
     items = sorted(risk.weighted_factors.items(), key=lambda kv: kv[1])
     keys = [k for k, _ in items]
@@ -102,6 +103,7 @@ def weighted_risk_contributions_from_assessment(
 
     Returns:
         The weighted risk contributions figure for the assessment.
+
     """
     return weighted_risk_contributions(assessment.risk, height=height, width=width)
 
@@ -129,13 +131,12 @@ def portfolio_risk_comparison(
 
     Raises:
         ValueError: If ``assessments`` is empty.
+
     """
     if not assessments:
         raise ValueError("portfolio_risk_comparison requires at least one assessment.")
 
-    ranked = sorted(
-        assessments, key=lambda a: a.risk.risk_score, reverse=descending
-    )
+    ranked = sorted(assessments, key=lambda a: a.risk.risk_score, reverse=descending)
     well_ids = [a.well_id for a in ranked]
     scores = [a.risk.risk_score for a in ranked]
     colors = [RISK_CATEGORY_COLORS[a.risk.risk_category] for a in ranked]
@@ -155,9 +156,7 @@ def portfolio_risk_comparison(
     fig.update_yaxes(title_text="Risk score (0-100)", range=[0, 100])
     fig.update_xaxes(title_text="Well")
     fig.update_layout(showlegend=False)
-    return apply_base_layout(
-        fig, "Portfolio Risk Comparison", height=height, width=width
-    )
+    return apply_base_layout(fig, "Portfolio Risk Comparison", height=height, width=width)
 
 
 def portfolio_integrity_comparison(
@@ -183,11 +182,10 @@ def portfolio_integrity_comparison(
 
     Raises:
         ValueError: If ``assessments`` is empty.
+
     """
     if not assessments:
-        raise ValueError(
-            "portfolio_integrity_comparison requires at least one assessment."
-        )
+        raise ValueError("portfolio_integrity_comparison requires at least one assessment.")
 
     ranked = sorted(
         assessments,
@@ -213,6 +211,4 @@ def portfolio_integrity_comparison(
     fig.update_yaxes(title_text="Integrity score (0-100)", range=[0, 100])
     fig.update_xaxes(title_text="Well")
     fig.update_layout(showlegend=False)
-    return apply_base_layout(
-        fig, "Portfolio Integrity Comparison", height=height, width=width
-    )
+    return apply_base_layout(fig, "Portfolio Integrity Comparison", height=height, width=width)

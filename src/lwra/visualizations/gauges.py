@@ -31,18 +31,18 @@ __all__ = [
 # Integrity band edges (0-100, higher better) mirroring
 # integrity_category_thresholds; used only to colour the gauge backdrop.
 _INTEGRITY_STEPS: tuple[tuple[float, float, str], ...] = (
-    (0.0, 40.0, "#d73027"),    # failed
-    (40.0, 60.0, "#fdae61"),   # poor
-    (60.0, 80.0, "#a6d96a"),   # moderate
+    (0.0, 40.0, "#d73027"),  # failed
+    (40.0, 60.0, "#fdae61"),  # poor
+    (60.0, 80.0, "#a6d96a"),  # moderate
     (80.0, 100.0, "#1a9850"),  # good
 )
 
 # Risk band edges (0-100, higher worse) mirroring risk_category_thresholds.
 _RISK_STEPS: tuple[tuple[float, float, str], ...] = (
-    (0.0, 25.0, "#1a9850"),     # low
-    (25.0, 50.0, "#fee08b"),    # medium
-    (50.0, 75.0, "#fc8d59"),    # high
-    (75.0, 100.0, "#d73027"),   # critical
+    (0.0, 25.0, "#1a9850"),  # low
+    (25.0, 50.0, "#fee08b"),  # medium
+    (50.0, 75.0, "#fc8d59"),  # high
+    (75.0, 100.0, "#d73027"),  # critical
 )
 
 
@@ -67,6 +67,7 @@ def _gauge(
 
     Returns:
         A configured gauge :class:`plotly.graph_objects.Figure`.
+
     """
     fig = go.Figure(
         go.Indicator(
@@ -76,9 +77,7 @@ def _gauge(
             gauge={
                 "axis": {"range": [0, 100], "tickwidth": 1},
                 "bar": {"color": bar_color, "thickness": 0.30},
-                "steps": [
-                    {"range": [lo, hi], "color": color} for lo, hi, color in steps
-                ],
+                "steps": [{"range": [lo, hi], "color": color} for lo, hi, color in steps],
                 "threshold": {
                     "line": {"color": "#222222", "width": 3},
                     "thickness": 0.80,
@@ -106,11 +105,11 @@ def integrity_gauge(
     Returns:
         A gauge figure for ``overall_integrity_score``, banded by category and
         with the value bar coloured by ``integrity_category``.
+
     """
     bar = INTEGRITY_CATEGORY_COLORS[integrity.integrity_category]
     title = (
-        f"Integrity: {integrity.overall_integrity_score:.1f} "
-        f"({integrity.integrity_category.value})"
+        f"Integrity: {integrity.overall_integrity_score:.1f} ({integrity.integrity_category.value})"
     )
     return _gauge(
         value=integrity.overall_integrity_score,
@@ -138,6 +137,7 @@ def risk_gauge(
     Returns:
         A gauge figure for ``risk_score``, banded by category and with the value
         bar coloured by ``risk_category``.
+
     """
     bar = RISK_CATEGORY_COLORS[risk.risk_category]
     title = f"Risk: {risk.risk_score:.1f} ({risk.risk_category.value})"
@@ -166,6 +166,7 @@ def integrity_gauge_from_assessment(
 
     Returns:
         The integrity gauge figure for the assessment's integrity result.
+
     """
     return integrity_gauge(assessment.integrity, height=height, width=width)
 
@@ -185,5 +186,6 @@ def risk_gauge_from_assessment(
 
     Returns:
         The risk gauge figure for the assessment's risk result.
+
     """
     return risk_gauge(assessment.risk, height=height, width=width)

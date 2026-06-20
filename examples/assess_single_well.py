@@ -41,8 +41,7 @@ def main() -> None:
     print()
 
     print("INTEGRITY")
-    print(f"  Overall: {integ.overall_integrity_score:.1f}/100 "
-          f"({integ.integrity_category.value})")
+    print(f"  Overall: {integ.overall_integrity_score:.1f}/100 ({integ.integrity_category.value})")
     for key, score in integ.component_breakdown.items():
         print(f"    - {key:22s}: {score:5.1f}")
     if integ.flags:

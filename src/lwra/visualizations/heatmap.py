@@ -43,6 +43,7 @@ def _axis_bin(value: float, size: int = _MATRIX_SIZE) -> int:
 
     Returns:
         An integer bin in [1, size].
+
     """
     v = max(0.0, min(100.0, value))
     return min(int(v // (100.0 / size)) + 1, size)
@@ -60,6 +61,7 @@ def _cell_from_risk(risk: RiskResult, size: int = _MATRIX_SIZE) -> tuple[int, in
 
     Returns:
         ``(likelihood_bin, consequence_bin)`` with 1-based coordinates.
+
     """
     trace: dict[str, Any] = risk.calculation_trace or {}
     coords = trace.get("matrix_coordinates")
@@ -80,13 +82,11 @@ def _matrix_background(size: int = _MATRIX_SIZE) -> go.Heatmap:
 
     Returns:
         A :class:`plotly.graph_objects.Heatmap` backdrop trace.
+
     """
     # Severity grid: combine the two 1..size axes into a 0-1 severity used only
     # for the backdrop colour. Product captures "both high" as the hot corner.
-    z = [
-        [(l * c) / (size * size) for l in range(1, size + 1)]
-        for c in range(1, size + 1)
-    ]
+    z = [[(lv * c) / (size * size) for lv in range(1, size + 1)] for c in range(1, size + 1)]
     ticks = list(range(1, size + 1))
     return go.Heatmap(
         z=z,
@@ -112,6 +112,7 @@ def _axis_layout(fig: go.Figure, size: int = _MATRIX_SIZE) -> None:
     Args:
         fig: The figure to style.
         size: Matrix dimension.
+
     """
     ticks = list(range(1, size + 1))
     fig.update_xaxes(
@@ -147,6 +148,7 @@ def risk_matrix_heatmap(
 
     Returns:
         A heatmap figure with a labelled marker at the well's matrix cell.
+
     """
     l_bin, c_bin = _cell_from_risk(risk)
 
@@ -156,7 +158,12 @@ def risk_matrix_heatmap(
             x=[l_bin],
             y=[c_bin],
             mode="markers+text",
-            marker={"size": 26, "color": "#222222", "symbol": "circle", "line": {"color": "white", "width": 2}},
+            marker={
+                "size": 26,
+                "color": "#222222",
+                "symbol": "circle",
+                "line": {"color": "white", "width": 2},
+            },
             text=[risk.well_id],
             textposition="top center",
             textfont={"color": "#222222", "size": 12},
@@ -192,6 +199,7 @@ def risk_matrix_heatmap_from_assessment(
 
     Returns:
         The single-well risk matrix figure.
+
     """
     return risk_matrix_heatmap(assessment.risk, height=height, width=width)
 
@@ -217,6 +225,7 @@ def portfolio_risk_matrix(
 
     Raises:
         ValueError: If ``assessments`` is empty.
+
     """
     if not assessments:
         raise ValueError("portfolio_risk_matrix requires at least one assessment.")
@@ -244,8 +253,7 @@ def portfolio_risk_matrix(
         texts.append(assessment.well_id)
         colors.append(RISK_CATEGORY_COLORS[risk.risk_category])
         hovers.append(
-            f"{assessment.well_id}<br>Risk {risk.risk_score:.1f} "
-            f"({risk.risk_category.value})"
+            f"{assessment.well_id}<br>Risk {risk.risk_score:.1f} ({risk.risk_category.value})"
         )
 
     fig.add_trace(
@@ -264,6 +272,4 @@ def portfolio_risk_matrix(
     )
     _axis_layout(fig)
     fig.update_layout(showlegend=False)
-    return apply_base_layout(
-        fig, "Portfolio Risk Matrix", height=height, width=width
-    )
+    return apply_base_layout(fig, "Portfolio Risk Matrix", height=height, width=width)

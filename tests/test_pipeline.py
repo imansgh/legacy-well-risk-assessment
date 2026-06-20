@@ -30,7 +30,9 @@ def test_lean_and_traced_agree(well_excellent) -> None:  # type: ignore[no-untyp
     ex = {"assessed_at"}
     assert lean.integrity.model_dump(exclude=ex) == traced.integrity.model_dump(exclude=ex)
     assert lean.risk.model_dump(exclude=ex) == traced.risk.model_dump(exclude=ex)
-    assert lean.recommendation.model_dump(exclude=ex) == traced.recommendation.model_dump(exclude=ex)
+    assert lean.recommendation.model_dump(exclude=ex) == traced.recommendation.model_dump(
+        exclude=ex
+    )
 
 
 def test_convenience_accessors(well_excellent) -> None:  # type: ignore[no-untyped-def]

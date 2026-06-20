@@ -20,7 +20,7 @@ Pure, deterministic function returning the written file path.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +69,7 @@ def _styles() -> dict[str, ParagraphStyle]:
 
     Returns:
         A mapping of style name -> :class:`ParagraphStyle`.
+
     """
     base = getSampleStyleSheet()
     styles: dict[str, ParagraphStyle] = {}
@@ -76,23 +77,35 @@ def _styles() -> dict[str, ParagraphStyle]:
         "LWRATitle", parent=base["Title"], textColor=_BRAND, fontSize=20, spaceAfter=4
     )
     styles["subtitle"] = ParagraphStyle(
-        "LWRASubtitle", parent=base["Normal"], fontSize=10, textColor=colors.grey,
+        "LWRASubtitle",
+        parent=base["Normal"],
+        fontSize=10,
+        textColor=colors.grey,
         spaceAfter=12,
     )
     styles["h2"] = ParagraphStyle(
-        "LWRAH2", parent=base["Heading2"], textColor=_BRAND, fontSize=13,
-        spaceBefore=12, spaceAfter=6,
+        "LWRAH2",
+        parent=base["Heading2"],
+        textColor=_BRAND,
+        fontSize=13,
+        spaceBefore=12,
+        spaceAfter=6,
     )
-    styles["body"] = ParagraphStyle(
-        "LWRABody", parent=base["Normal"], fontSize=10, leading=14
-    )
+    styles["body"] = ParagraphStyle("LWRABody", parent=base["Normal"], fontSize=10, leading=14)
     styles["small"] = ParagraphStyle(
-        "LWRASmall", parent=base["Normal"], fontSize=8, textColor=colors.grey,
+        "LWRASmall",
+        parent=base["Normal"],
+        fontSize=8,
+        textColor=colors.grey,
         leading=11,
     )
     styles["disclaimer"] = ParagraphStyle(
-        "LWRADisclaimer", parent=base["Normal"], fontSize=8,
-        textColor=colors.HexColor("#7A1F1F"), leading=11, spaceBefore=6,
+        "LWRADisclaimer",
+        parent=base["Normal"],
+        fontSize=8,
+        textColor=colors.HexColor("#7A1F1F"),
+        leading=11,
+        spaceBefore=6,
     )
     return styles
 
@@ -106,6 +119,7 @@ def _kv_table(rows: list[tuple[str, str]], *, col_widths: tuple[float, float]) -
 
     Returns:
         A styled :class:`reportlab.platypus.Table`.
+
     """
     table = Table([list(r) for r in rows], colWidths=list(col_widths), hAlign="LEFT")
     table.setStyle(
@@ -140,6 +154,7 @@ def _header_table(
 
     Returns:
         A styled :class:`reportlab.platypus.Table`.
+
     """
     table = Table([header, *data_rows], colWidths=col_widths, hAlign="LEFT", repeatRows=1)
     table.setStyle(
@@ -175,6 +190,7 @@ def _render_figures_png(
         ``(images, error)`` where ``images`` is a list of ``(caption, png_bytes)``
         and ``error`` is ``None`` on success or a short message describing why
         figure export was skipped (e.g. missing Chrome runtime for Kaleido).
+
     """
     builders = [
         ("Overall integrity", integrity_gauge_from_assessment(assessment)),
@@ -212,6 +228,7 @@ def _figure_flowables(
 
     Returns:
         A list of platypus flowables (images + captions).
+
     """
     import io
 
@@ -255,6 +272,7 @@ def write_pdf_report(
 
     Raises:
         ValueError: If ``well`` and ``assessment`` refer to different wells.
+
     """
     check_consistency(well, assessment)
     styles = _styles()
@@ -285,7 +303,7 @@ def write_pdf_report(
 
     # --- Title block ------------------------------------------------------
     story.append(Paragraph("Legacy Well Risk Assessment", styles["title"]))
-    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     story.append(
         Paragraph(
             f"Well <b>{well.well_id}</b> &mdash; {well.name}<br/>"
@@ -300,7 +318,10 @@ def write_pdf_report(
         _kv_table(
             [
                 ("Verdict", fmt(rec.verdict).upper()),
-                ("Overall integrity", f"{integ.overall_integrity_score:.1f} / 100 ({integ.integrity_category.value})"),
+                (
+                    "Overall integrity",
+                    f"{integ.overall_integrity_score:.1f} / 100 ({integ.integrity_category.value})",
+                ),
                 ("Overall risk", f"{risk.risk_score:.1f} / 100 ({risk.risk_category.value})"),
                 ("Confidence", f"{rec.confidence:.2f}"),
             ],
@@ -356,9 +377,7 @@ def write_pdf_report(
     story.append(Paragraph("3. Risk Results", styles["h2"]))
     coords = (risk.calculation_trace or {}).get("matrix_coordinates", {})
     matrix_cell = (
-        f"L{coords.get('likelihood_bin')}-C{coords.get('consequence_bin')}"
-        if coords
-        else "\u2013"
+        f"L{coords.get('likelihood_bin')}-C{coords.get('consequence_bin')}" if coords else "\u2013"
     )
     story.append(
         _kv_table(
@@ -367,7 +386,10 @@ def write_pdf_report(
                 ("Likelihood", f"{risk.likelihood:.1f} / 100"),
                 ("Consequence", f"{risk.consequence:.1f} / 100"),
                 ("Risk-matrix cell", matrix_cell),
-                ("Dominant drivers", ", ".join(d.replace("_", " ") for d in risk.dominant_risk_drivers) or "\u2013"),
+                (
+                    "Dominant drivers",
+                    ", ".join(d.replace("_", " ") for d in risk.dominant_risk_drivers) or "\u2013",
+                ),
             ],
             col_widths=(55 * mm, content_width - 55 * mm),
         )
@@ -416,9 +438,7 @@ def write_pdf_report(
         if error:
             story.append(Paragraph(error, styles["body"]))
         else:
-            story.extend(
-                _figure_flowables(images, styles, img_width=content_width * 0.75)
-            )
+            story.extend(_figure_flowables(images, styles, img_width=content_width * 0.75))
 
     # --- Disclaimer -------------------------------------------------------
     story.append(Spacer(1, 8 * mm))

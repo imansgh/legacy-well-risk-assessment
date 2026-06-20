@@ -53,6 +53,7 @@ def _write_header_row(ws: Worksheet, row: int, headers: list[str]) -> None:
         ws: Target worksheet.
         row: 1-based row index to write into.
         headers: Column header labels.
+
     """
     for col, label in enumerate(headers, start=1):
         cell = ws.cell(row=row, column=col, value=label)
@@ -66,6 +67,7 @@ def _autosize(ws: Worksheet, *, max_width: int = 80) -> None:
     Args:
         ws: Worksheet to size.
         max_width: Upper bound on column width in characters.
+
     """
     widths: dict[int, int] = {}
     for row in ws.iter_rows():
@@ -84,6 +86,7 @@ def _sheet_inputs(ws: Worksheet, well: WellData) -> None:
     Args:
         ws: The (already-titled) worksheet.
         well: The source well data.
+
     """
     ws.cell(row=1, column=1, value=f"Well Inputs \u2014 {well.well_id}").font = _TITLE_FONT
 
@@ -135,8 +138,14 @@ def _sheet_inputs(ws: Worksheet, well: WellData) -> None:
     ws.cell(row=row, column=1, value="Barriers").font = _SECTION_FONT
     row += 1
     barrier_headers = [
-        "Barrier ID", "Type", "Element", "Top (m)", "Bottom (m)",
-        "Condition (0-1)", "Verified", "Verification method",
+        "Barrier ID",
+        "Type",
+        "Element",
+        "Top (m)",
+        "Bottom (m)",
+        "Condition (0-1)",
+        "Verified",
+        "Verification method",
     ]
     _write_header_row(ws, row, barrier_headers)
     row += 1
@@ -164,6 +173,7 @@ def _sheet_integrity(ws: Worksheet, assessment: WellAssessment) -> None:
     Args:
         ws: The worksheet.
         assessment: The assessment being reported.
+
     """
     integ = assessment.integrity
     ws.cell(row=1, column=1, value=f"Integrity \u2014 {integ.well_id}").font = _TITLE_FONT
@@ -208,6 +218,7 @@ def _sheet_risk(ws: Worksheet, assessment: WellAssessment) -> None:
     Args:
         ws: The worksheet.
         assessment: The assessment being reported.
+
     """
     risk = assessment.risk
     ws.cell(row=1, column=1, value=f"Risk \u2014 {risk.well_id}").font = _TITLE_FONT
@@ -266,6 +277,7 @@ def _sheet_recommendation(ws: Worksheet, assessment: WellAssessment) -> None:
     Args:
         ws: The worksheet.
         assessment: The assessment being reported.
+
     """
     rec = assessment.recommendation
     ws.cell(row=1, column=1, value=f"Recommendation \u2014 {rec.well_id}").font = _TITLE_FONT
@@ -312,15 +324,18 @@ def _sheet_traces(ws: Worksheet, assessment: WellAssessment) -> None:
     Args:
         ws: The worksheet.
         assessment: The assessment being reported (must carry a trace).
+
     """
-    ws.cell(row=1, column=1, value=f"Calculation Traces \u2014 {assessment.well_id}").font = _TITLE_FONT
+    header_cell = ws.cell(row=1, column=1, value=f"Calculation Traces \u2014 {assessment.well_id}")
+    header_cell.font = _TITLE_FONT
     row = 3
     _write_header_row(ws, row, ["Trace key", "Value"])
     row += 1
     flat = flatten(assessment.trace or {})
     for key, value in flat.items():
         ws.cell(row=row, column=1, value=key)
-        ws.cell(row=row, column=2, value=fmt(value) if not isinstance(value, (int, float)) else value)
+        cell_value = fmt(value) if not isinstance(value, (int, float)) else value
+        ws.cell(row=row, column=2, value=cell_value)
         row += 1
     _autosize(ws, max_width=100)
 
@@ -344,6 +359,7 @@ def write_excel_report(
 
     Raises:
         ValueError: If ``well`` and ``assessment`` refer to different wells.
+
     """
     check_consistency(well, assessment)
 

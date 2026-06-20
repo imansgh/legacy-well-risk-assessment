@@ -38,6 +38,7 @@ def assign_category(risk_score: float) -> RiskCategory:
 
     Returns:
         The matching :class:`RiskCategory`.
+
     """
     thresholds = load_thresholds()["risk_category_thresholds"]
     ordered = sorted(thresholds.items(), key=lambda kv: kv[1]["min"], reverse=True)
@@ -56,6 +57,7 @@ def _axis_bin(value: float, size: int = MATRIX_SIZE) -> int:
 
     Returns:
         An integer in [1, size]. 100 maps to ``size`` (not ``size + 1``).
+
     """
     v = clamp(value)
     # Bin width is 100/size; floor into a bin then shift to 1-based, capping
@@ -83,6 +85,7 @@ def matrix_coordinates(
 
     Returns:
         ``(likelihood_bin, consequence_bin, trace)`` with 1-based bins.
+
     """
     l_bin = _axis_bin(likelihood, size)
     c_bin = _axis_bin(consequence, size)

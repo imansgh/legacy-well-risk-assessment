@@ -58,6 +58,7 @@ def evaluate_cement_quality(
     Returns:
         ``(cement_quality_score, trace)`` on a 0-100 scale. With no cement
         elements the score is 0.0 and the trace records the absence.
+
     """
     overrides = integrity_overrides()
     low_conf = overrides["low_confidence_condition_threshold"]
@@ -76,7 +77,7 @@ def evaluate_cement_quality(
 
     # Per-element condition scores with verification discount.
     fragments: list[dict[str, Any]] = []
-    raw_lengths: list[float] = []          # unrounded, used for the weighted mean
+    raw_lengths: list[float] = []  # unrounded, used for the weighted mean
     intervals: list[tuple[float, float]] = []
     for b in cement:
         base = condition_to_score(b.condition_score)
@@ -108,13 +109,14 @@ def evaluate_cement_quality(
     total_length = sum(raw_lengths)
     if total_length > 0:
         condition_component = clamp(
-            sum(f["element_score"] * l for f, l in zip(fragments, raw_lengths))
+            sum(
+                f["element_score"] * length
+                for f, length in zip(fragments, raw_lengths, strict=False)
+            )
             / total_length
         )
     else:  # pragma: no cover - guarded by model validation
-        condition_component = clamp(
-            sum(f["element_score"] for f in fragments) / len(fragments)
-        )
+        condition_component = clamp(sum(f["element_score"] for f in fragments) / len(fragments))
 
     # Determine the target sealing window.
     if caprock_top_m is not None and caprock_bottom_m is not None:

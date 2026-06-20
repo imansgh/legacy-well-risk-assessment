@@ -50,6 +50,7 @@ def _ordered_scores(integrity: IntegrityResult) -> tuple[list[str], list[float]]
     Returns:
         ``(labels, values)`` aligned to :data:`_COMPONENT_ORDER`. Components
         absent from the breakdown default to 0.0 so the trace stays closed.
+
     """
     breakdown = integrity.component_breakdown
     labels = [COMPONENT_LABELS.get(k, prettify_key(k)) for k in _COMPONENT_ORDER]
@@ -66,6 +67,7 @@ def _close_loop(labels: list[str], values: list[float]) -> tuple[list[str], list
 
     Returns:
         ``(labels, values)`` with the first element appended to each.
+
     """
     return labels + labels[:1], values + values[:1]
 
@@ -88,6 +90,7 @@ def component_radar(
     Returns:
         A radar figure with the five components on a 0-100 radial axis, filled
         and coloured by the well's integrity category.
+
     """
     labels, values = _ordered_scores(integrity)
     theta, r = _close_loop(labels, values)
@@ -126,6 +129,7 @@ def component_radar_from_assessment(
 
     Returns:
         The integrity component radar for the assessment.
+
     """
     return component_radar(assessment.integrity, height=height, width=width)
 
@@ -154,6 +158,7 @@ def portfolio_radar(
 
     Raises:
         ValueError: If ``assessments`` is empty.
+
     """
     if not assessments:
         raise ValueError("portfolio_radar requires at least one assessment.")
@@ -176,6 +181,4 @@ def portfolio_radar(
         )
     fig.update_polars(radialaxis={"range": [0, 100], "tickvals": [0, 25, 50, 75, 100]})
     fig.update_layout(showlegend=True)
-    return apply_base_layout(
-        fig, "Portfolio Integrity Components", height=height, width=width
-    )
+    return apply_base_layout(fig, "Portfolio Integrity Components", height=height, width=width)

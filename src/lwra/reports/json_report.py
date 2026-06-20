@@ -54,6 +54,7 @@ def build_json_payload(
               "disclaimer": "...",
               "assessment": { ... full WellAssessment dump ... }
             }
+
     """
     dump = assessment.model_dump(mode="json")
     if not traced:
@@ -85,6 +86,7 @@ def write_json_report(
 
     Returns:
         The path to the written ``.json`` file.
+
     """
     payload = build_json_payload(assessment, traced=traced)
     target = resolve_output_path(

@@ -37,7 +37,10 @@ def main() -> None:
     assessments = _screen()
     ranked = sorted(assessments, key=lambda a: a.risk_score, reverse=True)
 
-    header = f"{'Well':18s} {'Integrity':>10s} {'Risk':>7s} {'Verdict':>11s}  {'CO2':>14s} {'Geothermal':>14s}"
+    header = (
+        f"{'Well':18s} {'Integrity':>10s} {'Risk':>7s}"
+        f" {'Verdict':>11s}  {'CO2':>14s} {'Geothermal':>14s}"
+    )
     print("=" * len(header))
     print("Portfolio Risk Screening (highest risk first)")
     print("=" * len(header))
@@ -65,9 +68,17 @@ def main() -> None:
     with summary_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
         writer.writerow(
-            ["well_id", "integrity_score", "integrity_category", "risk_score",
-             "risk_category", "verdict", "co2_suitability", "geothermal_suitability",
-             "confidence"]
+            [
+                "well_id",
+                "integrity_score",
+                "integrity_category",
+                "risk_score",
+                "risk_category",
+                "verdict",
+                "co2_suitability",
+                "geothermal_suitability",
+                "confidence",
+            ]
         )
         for a in ranked:
             writer.writerow(

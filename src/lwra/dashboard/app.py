@@ -13,7 +13,6 @@ Run from the repository root::
 
 from __future__ import annotations
 
-import json
 import tempfile
 from datetime import date
 from pathlib import Path
@@ -48,8 +47,14 @@ def _verdict_badge(verdict: str) -> str:
 
     Returns:
         A short display label.
+
     """
-    icons = {"reuse": "\u2705", "remediate": "\U0001f527", "monitor": "\U0001f441", "abandon": "\u26d4"}
+    icons = {
+        "reuse": "\u2705",
+        "remediate": "\U0001f527",
+        "monitor": "\U0001f441",
+        "abandon": "\u26d4",
+    }
     return f"{icons.get(verdict, '')} {verdict.upper()}"
 
 
@@ -59,15 +64,23 @@ def _render_single(assessment: WellAssessment, well: WellData) -> None:
     Args:
         assessment: The completed assessment.
         well: The source well (needed for report writers).
+
     """
     rec = assessment.recommendation
 
     st.subheader(f"Verdict: {_verdict_badge(rec.verdict)}")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Integrity", f"{assessment.overall_integrity_score:.1f}/100",
-                assessment.integrity.integrity_category.value)
-    col2.metric("Risk", f"{assessment.risk_score:.1f}/100",
-                assessment.risk.risk_category.value, delta_color="inverse")
+    col1.metric(
+        "Integrity",
+        f"{assessment.overall_integrity_score:.1f}/100",
+        assessment.integrity.integrity_category.value,
+    )
+    col2.metric(
+        "Risk",
+        f"{assessment.risk_score:.1f}/100",
+        assessment.risk.risk_category.value,
+        delta_color="inverse",
+    )
     col3.metric("Confidence", f"{rec.confidence:.2f}")
 
     gauge_l, gauge_r = st.columns(2)
@@ -76,9 +89,13 @@ def _render_single(assessment: WellAssessment, well: WellData) -> None:
 
     chart_l, chart_r = st.columns(2)
     chart_l.plotly_chart(viz.component_radar_from_assessment(assessment), use_container_width=True)
-    chart_r.plotly_chart(viz.risk_matrix_heatmap_from_assessment(assessment), use_container_width=True)
+    chart_r.plotly_chart(
+        viz.risk_matrix_heatmap_from_assessment(assessment), use_container_width=True
+    )
 
-    st.plotly_chart(viz.weighted_risk_contributions_from_assessment(assessment), use_container_width=True)
+    st.plotly_chart(
+        viz.weighted_risk_contributions_from_assessment(assessment), use_container_width=True
+    )
 
     st.markdown("### Recommendation")
     st.write(rec.rationale)
@@ -110,6 +127,7 @@ def _render_downloads(assessment: WellAssessment, well: WellData) -> None:
     Args:
         assessment: The completed (traced) assessment.
         well: The source well.
+
     """
     st.markdown("### Download reports")
     tmp = Path(tempfile.mkdtemp(prefix="lwra_dash_"))
@@ -117,7 +135,9 @@ def _render_downloads(assessment: WellAssessment, well: WellData) -> None:
     excel_path = write_excel_report(well, assessment, tmp)
 
     d1, d2, d3 = st.columns(3)
-    d1.download_button("JSON", json_path.read_bytes(), file_name=json_path.name, mime="application/json")
+    d1.download_button(
+        "JSON", json_path.read_bytes(), file_name=json_path.name, mime="application/json"
+    )
     d2.download_button(
         "Excel",
         excel_path.read_bytes(),
@@ -126,7 +146,9 @@ def _render_downloads(assessment: WellAssessment, well: WellData) -> None:
     )
     try:
         pdf_path = write_pdf_report(well, assessment, tmp)
-        d3.download_button("PDF", pdf_path.read_bytes(), file_name=pdf_path.name, mime="application/pdf")
+        d3.download_button(
+            "PDF", pdf_path.read_bytes(), file_name=pdf_path.name, mime="application/pdf"
+        )
     except Exception as exc:  # noqa: BLE001 - PDF figures need a Chrome runtime
         d3.caption(f"PDF unavailable: {type(exc).__name__}")
 
@@ -136,6 +158,7 @@ def _render_portfolio(assessments: list[WellAssessment]) -> None:
 
     Args:
         assessments: Assessments for every well in the portfolio.
+
     """
     st.subheader("Portfolio screening")
     table = [

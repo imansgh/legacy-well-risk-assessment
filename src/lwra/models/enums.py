@@ -7,7 +7,7 @@ the configuration-key enums in :mod:`lwra.config.enums`.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 __all__ = [
     "BarrierType",
@@ -21,14 +21,14 @@ __all__ = [
 ]
 
 
-class BarrierType(str, Enum):
+class BarrierType(StrEnum):
     """Whether a barrier element is the primary or secondary envelope."""
 
     PRIMARY = "primary"
     SECONDARY = "secondary"
 
 
-class BarrierElement(str, Enum):
+class BarrierElement(StrEnum):
     """Physical element constituting a well barrier."""
 
     CEMENT = "cement"
@@ -39,7 +39,7 @@ class BarrierElement(str, Enum):
     WELLHEAD = "wellhead"
 
 
-class FluidType(str, Enum):
+class FluidType(StrEnum):
     """Dominant reservoir or wellbore fluid.
 
     Values match the keys of ``fluid_hazard_scores`` in ``weights.yaml``, so
@@ -56,7 +56,7 @@ class FluidType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class WellType(str, Enum):
+class WellType(StrEnum):
     """Functional classification of the well."""
 
     PRODUCTION = "production"
@@ -67,7 +67,7 @@ class WellType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class IntegrityCategory(str, Enum):
+class IntegrityCategory(StrEnum):
     """Qualitative band for the overall integrity score (higher is better).
 
     Values match the keys of ``integrity_category_thresholds`` in
@@ -80,7 +80,7 @@ class IntegrityCategory(str, Enum):
     FAILED = "failed"
 
 
-class RiskCategory(str, Enum):
+class RiskCategory(StrEnum):
     """Qualitative band for the overall risk score (higher is worse).
 
     Values match the keys of ``risk_category_thresholds`` in
@@ -93,7 +93,7 @@ class RiskCategory(str, Enum):
     CRITICAL = "critical"
 
 
-class SuitabilityLevel(str, Enum):
+class SuitabilityLevel(StrEnum):
     """Suitability verdict for a specific reuse application (CO2 / geothermal)."""
 
     SUITABLE = "suitable"
@@ -102,7 +102,7 @@ class SuitabilityLevel(str, Enum):
     INSUFFICIENT_DATA = "insufficient_data"
 
 
-class Verdict(str, Enum):
+class Verdict(StrEnum):
     """Top-level engineering recommendation for the well."""
 
     REUSE = "reuse"

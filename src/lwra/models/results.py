@@ -16,7 +16,7 @@ JSON report / PostgreSQL JSONB persistence paths.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -33,7 +33,7 @@ __all__ = ["IntegrityResult", "RiskResult", "RecommendationResult"]
 
 def _utcnow() -> datetime:
     """Return the current timezone-aware UTC timestamp."""
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class IntegrityResult(BaseModel):
@@ -55,6 +55,7 @@ class IntegrityResult(BaseModel):
         flags: Notable findings (e.g. unverified secondary barrier).
         component_breakdown: Named component scores as a dict.
         assessed_at: UTC timestamp the result was produced.
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -81,9 +82,7 @@ class IntegrityResult(BaseModel):
     integrity_category: IntegrityCategory = Field(
         ..., description="Qualitative band for the overall score."
     )
-    flags: tuple[str, ...] = Field(
-        default_factory=tuple, description="Notable integrity findings."
-    )
+    flags: tuple[str, ...] = Field(default_factory=tuple, description="Notable integrity findings.")
     component_breakdown: dict[str, float] = Field(
         default_factory=dict, description="Named component scores as a dict."
     )
@@ -110,23 +109,16 @@ class RiskResult(BaseModel):
         dominant_risk_drivers: Names of the factors driving the risk.
         calculation_trace: Full transparency record of the calculation.
         assessed_at: UTC timestamp the result was produced.
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     well_id: str = Field(..., min_length=1, description="Assessed well identifier.")
-    risk_score: float = Field(
-        ..., ge=0, le=100, description="Aggregated risk score (0-100)."
-    )
-    risk_category: RiskCategory = Field(
-        ..., description="Qualitative band for the risk score."
-    )
-    likelihood: float = Field(
-        ..., ge=0, le=100, description="Likelihood component (0-100)."
-    )
-    consequence: float = Field(
-        ..., ge=0, le=100, description="Consequence component (0-100)."
-    )
+    risk_score: float = Field(..., ge=0, le=100, description="Aggregated risk score (0-100).")
+    risk_category: RiskCategory = Field(..., description="Qualitative band for the risk score.")
+    likelihood: float = Field(..., ge=0, le=100, description="Likelihood component (0-100).")
+    consequence: float = Field(..., ge=0, le=100, description="Consequence component (0-100).")
     weighted_factors: dict[str, float] = Field(
         default_factory=dict, description="Per-factor weighted contributions."
     )
@@ -153,6 +145,7 @@ class RecommendationResult(BaseModel):
         confidence: Confidence in the recommendation, in [0, 1].
         rationale: Human-readable justification for the verdict.
         assessed_at: UTC timestamp the result was produced.
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -171,9 +164,7 @@ class RecommendationResult(BaseModel):
     confidence: float = Field(
         ..., ge=0.0, le=1.0, description="Confidence in the recommendation [0, 1]."
     )
-    rationale: str = Field(
-        default="", description="Justification for the verdict."
-    )
+    rationale: str = Field(default="", description="Justification for the verdict.")
     assessed_at: datetime = Field(
         default_factory=_utcnow, description="UTC timestamp of assessment."
     )

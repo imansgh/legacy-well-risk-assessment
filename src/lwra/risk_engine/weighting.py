@@ -72,6 +72,7 @@ def load_weights() -> dict[str, Any]:
     Raises:
         FileNotFoundError: If the weights file is missing.
         ValueError: If the file does not parse to a mapping.
+
     """
     return _load_yaml(CONFIG_DIR / "weights.yaml")
 
@@ -86,6 +87,7 @@ def load_thresholds() -> dict[str, Any]:
     Raises:
         FileNotFoundError: If the thresholds file is missing.
         ValueError: If the file does not parse to a mapping.
+
     """
     return _load_yaml(CONFIG_DIR / "thresholds.yaml")
 
@@ -110,6 +112,7 @@ def risk_factor_weights() -> dict[str, float]:
     Raises:
         KeyError: If the block is absent.
         ValueError: If the weights do not sum to 1.0 within tolerance.
+
     """
     weights = load_weights()
     try:
@@ -131,6 +134,7 @@ def fluid_hazard_scores() -> dict[str, float]:
 
     Raises:
         KeyError: If the block is absent.
+
     """
     weights = load_weights()
     try:
@@ -149,6 +153,7 @@ def likelihood_consequence_split() -> dict[str, dict[str, float]]:
 
     Raises:
         KeyError: If the block is absent.
+
     """
     weights = load_weights()
     try:
@@ -171,6 +176,7 @@ def clamp(value: float, low: float = 0.0, high: float = 100.0) -> float:
 
     Returns:
         ``value`` constrained to ``[low, high]``.
+
     """
     return max(low, min(high, value))
 
@@ -183,6 +189,7 @@ def round_score(value: float) -> float:
 
     Returns:
         ``value`` rounded to :data:`ROUNDING_DP` decimal places.
+
     """
     return round(value, ROUNDING_DP)
 
@@ -211,6 +218,7 @@ def normalise_linear(
 
     Raises:
         ValueError: If ``high == low`` (degenerate ramp).
+
     """
     if high == low:
         raise ValueError("normalise_linear requires high != low.")
@@ -254,6 +262,7 @@ def normalise_factor(
     Raises:
         KeyError: If the factor has no normalisation parameters.
         ValueError: If ``fluid_hazard`` is requested without a ``fluid_key``.
+
     """
     params_all = load_thresholds()["factor_normalisation"]
     key = factor.value
@@ -339,6 +348,7 @@ def weighted_axis_score(
 
     Raises:
         ValueError: If ``axis`` is not a recognised axis name.
+
     """
     if axis not in ("likelihood", "consequence"):
         raise ValueError(f"Unknown axis '{axis}'.")

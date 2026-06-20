@@ -56,6 +56,7 @@ class AssessRequest(BaseModel):
         as_of: Optional reference date for age-dependent factors. When omitted,
             the server uses the current date.
         traced: Whether to include the full calculation trace in the response.
+
     """
 
     well: WellData = Field(..., description="The well to assess.")
@@ -70,6 +71,7 @@ class BatchAssessRequest(BaseModel):
         wells: The wells to assess.
         as_of: Optional shared reference date.
         traced: Whether to include calculation traces in each result.
+
     """
 
     wells: list[WellData] = Field(..., min_length=1, description="Wells to assess.")
@@ -87,6 +89,7 @@ def _assess(well: WellData, *, as_of: date | None, traced: bool) -> WellAssessme
 
     Returns:
         The completed :class:`WellAssessment`.
+
     """
     if traced:
         return assess_well_traced(well, as_of=as_of)
@@ -98,6 +101,7 @@ def create_app() -> FastAPI:
 
     Returns:
         A configured :class:`fastapi.FastAPI` instance.
+
     """
     app = FastAPI(
         title="Legacy Well Risk Assessment API",
@@ -115,6 +119,7 @@ def create_app() -> FastAPI:
 
         Returns:
             A small status document.
+
         """
         return {"status": "ok"}
 
@@ -124,6 +129,7 @@ def create_app() -> FastAPI:
 
         Returns:
             The integrity/risk weights, overrides, and category thresholds.
+
         """
         thresholds = load_thresholds()
         return {
@@ -144,6 +150,7 @@ def create_app() -> FastAPI:
         Returns:
             A JSON response wrapping the assessment in the standard report
             envelope (``schema``/``mode``/``disclaimer``/``assessment``).
+
         """
         assessment = _assess(request.well, as_of=request.as_of, traced=request.traced)
         payload = build_json_payload(assessment, traced=request.traced)
@@ -162,14 +169,14 @@ def create_app() -> FastAPI:
 
         Raises:
             HTTPException: 422 if any well id is duplicated in the batch.
+
         """
         ids = [w.well_id for w in request.wells]
         if len(ids) != len(set(ids)):
             raise HTTPException(status_code=422, detail="Duplicate well_id in batch.")
 
         assessments = [
-            _assess(well, as_of=request.as_of, traced=request.traced)
-            for well in request.wells
+            _assess(well, as_of=request.as_of, traced=request.traced) for well in request.wells
         ]
         results = [build_json_payload(a, traced=request.traced) for a in assessments]
         summary = sorted(
@@ -207,6 +214,7 @@ def create_app() -> FastAPI:
 
         Raises:
             HTTPException: 400 if ``fmt`` is not a supported format.
+
         """
         fmt_lower = fmt.lower()
         if fmt_lower not in {"json", "excel", "pdf"}:
@@ -224,9 +232,7 @@ def create_app() -> FastAPI:
             media_type = "application/json"
         elif fmt_lower == "excel":
             path = write_excel_report(request.well, assessment, tmp_dir)
-            media_type = (
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         else:  # pdf
             path = write_pdf_report(request.well, assessment, tmp_dir)
             media_type = "application/pdf"

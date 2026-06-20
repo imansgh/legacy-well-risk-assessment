@@ -75,6 +75,7 @@ def aggregate_components(
 
     Raises:
         KeyError: If a required component score is missing.
+
     """
     weights = integrity_component_weights()
     contributions: dict[str, dict[str, float]] = {}
@@ -122,6 +123,7 @@ def apply_overrides(
 
     Returns:
         ``(final_score, trace)`` after applying any caps.
+
     """
     overrides = integrity_overrides()
     secondary_cap = overrides["missing_verified_secondary_barrier_cap"]
@@ -169,12 +171,11 @@ def assign_category(score: float) -> IntegrityCategory:
 
     Returns:
         The matching :class:`IntegrityCategory`.
+
     """
     thresholds = load_thresholds()["integrity_category_thresholds"]
     # Evaluate highest band first.
-    ordered = sorted(
-        thresholds.items(), key=lambda kv: kv[1]["min"], reverse=True
-    )
+    ordered = sorted(thresholds.items(), key=lambda kv: kv[1]["min"], reverse=True)
     for name, band in ordered:
         if score >= band["min"]:
             return IntegrityCategory(name)
@@ -198,6 +199,7 @@ def generate_flags(
 
     Returns:
         An ordered, de-duplicated tuple of flag strings.
+
     """
     flags: list[str] = []
 
@@ -214,9 +216,7 @@ def generate_flags(
         flags.append("Primary barrier failed or unverified.")
 
     if not has_verified_secondary:
-        flags.append(
-            "Overall integrity capped: no verified independent secondary barrier."
-        )
+        flags.append("Overall integrity capped: no verified independent secondary barrier.")
     if primary_failed_or_unverified:
         flags.append("Overall integrity capped: primary envelope unreliable.")
 
@@ -251,16 +251,11 @@ def assess_integrity_traced(well: WellData) -> tuple[IntegrityResult, dict[str, 
     Returns:
         ``(result, trace)``. The ``trace`` is the complete, nested derivation
         suitable for audit, publication appendices, and report generation.
+
     """
-    primary_score, primary_trace = evaluate_primary_barrier(
-        well.barriers, well.total_depth_m
-    )
-    secondary_score, secondary_trace = evaluate_secondary_barrier(
-        well.barriers, well.total_depth_m
-    )
-    cement_score, cement_trace = evaluate_cement_quality(
-        well.barriers, well.total_depth_m
-    )
+    primary_score, primary_trace = evaluate_primary_barrier(well.barriers, well.total_depth_m)
+    secondary_score, secondary_trace = evaluate_secondary_barrier(well.barriers, well.total_depth_m)
+    cement_score, cement_trace = evaluate_cement_quality(well.barriers, well.total_depth_m)
     mechanical_score, mechanical_trace = evaluate_mechanical_integrity(
         well.barriers, well.casing_strings, well.total_depth_m
     )
@@ -341,6 +336,7 @@ def assess_integrity(well: WellData) -> IntegrityResult:
 
     Returns:
         A fully populated, immutable :class:`IntegrityResult`.
+
     """
     result, _ = assess_integrity_traced(well)
     return result

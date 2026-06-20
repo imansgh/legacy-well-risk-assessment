@@ -57,6 +57,7 @@ def resolve_output_path(
 
     Returns:
         The resolved, parent-created destination :class:`~pathlib.Path`.
+
     """
     safe_id = "".join(c if c.isalnum() or c in "-_" else "_" for c in well_id)
     filename = f"lwra_{safe_id}{suffix}"
@@ -83,6 +84,7 @@ def check_consistency(well: WellData, assessment: WellAssessment) -> None:
 
     Raises:
         ValueError: If the two ``well_id`` values differ.
+
     """
     if well.well_id != assessment.well_id:
         raise ValueError(
@@ -100,6 +102,7 @@ def fmt(value: Any) -> str:
     Returns:
         A clean string rendering. ``None`` becomes an en dash; floats are
         trimmed to two decimals; enums render as their value.
+
     """
     if value is None:
         return "\u2013"
@@ -127,6 +130,7 @@ def flatten(obj: Any, *, prefix: str = "", sep: str = ".") -> dict[str, Any]:
 
     Returns:
         A flat mapping of dotted keys to scalar values, in traversal order.
+
     """
     flat: dict[str, Any] = {}
     if isinstance(obj, dict):

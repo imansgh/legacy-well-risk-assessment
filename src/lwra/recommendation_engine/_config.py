@@ -38,6 +38,7 @@ def load_thresholds() -> dict[str, Any]:
     Raises:
         FileNotFoundError: If the thresholds file is missing.
         ValueError: If the file does not parse to a mapping.
+
     """
     path = CONFIG_DIR / "thresholds.yaml"
     if not path.is_file():
@@ -56,6 +57,7 @@ def co2_storage_thresholds() -> dict[str, Any]:
 
     Raises:
         KeyError: If the block is absent.
+
     """
     thresholds = load_thresholds()
     try:
@@ -72,6 +74,7 @@ def geothermal_thresholds() -> dict[str, Any]:
 
     Raises:
         KeyError: If the block is absent.
+
     """
     thresholds = load_thresholds()
     try:
@@ -88,5 +91,6 @@ def round_score(value: float) -> float:
 
     Returns:
         ``value`` rounded to :data:`ROUNDING_DP` decimal places.
+
     """
     return round(value, ROUNDING_DP)

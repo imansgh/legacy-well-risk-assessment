@@ -27,26 +27,19 @@ class CasingString(BaseModel):
         depth_top_m: Measured depth to the top of the string, in metres.
         depth_bottom_m: Measured depth to the shoe of the string, in metres.
         cemented: Whether the annulus around this string is cemented.
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     name: str = Field(..., min_length=1, description="Casing string identifier.")
-    outer_diameter_in: float = Field(
-        ..., gt=0, description="Nominal outer diameter in inches."
-    )
-    depth_top_m: float = Field(
-        ..., ge=0, description="Measured depth to top of string (m)."
-    )
-    depth_bottom_m: float = Field(
-        ..., gt=0, description="Measured depth to shoe of string (m)."
-    )
-    cemented: bool = Field(
-        default=False, description="Whether the annulus is cemented."
-    )
+    outer_diameter_in: float = Field(..., gt=0, description="Nominal outer diameter in inches.")
+    depth_top_m: float = Field(..., ge=0, description="Measured depth to top of string (m).")
+    depth_bottom_m: float = Field(..., gt=0, description="Measured depth to shoe of string (m).")
+    cemented: bool = Field(default=False, description="Whether the annulus is cemented.")
 
     @model_validator(mode="after")
-    def _validate_depth_ordering(self) -> "CasingString":
+    def _validate_depth_ordering(self) -> CasingString:
         """Ensure the shoe lies below the top of the string."""
         if self.depth_bottom_m <= self.depth_top_m:
             raise ValueError(
@@ -74,43 +67,30 @@ class BarrierData(BaseModel):
         verification_method: Description of how the barrier was verified.
         verified: Whether the barrier condition has been independently verified.
         notes: Optional free-text observations.
+
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    barrier_id: str = Field(
-        ..., min_length=1, description="Unique barrier identifier."
-    )
-    barrier_type: BarrierType = Field(
-        ..., description="Primary or secondary barrier role."
-    )
-    element: BarrierElement = Field(
-        ..., description="Physical element constituting the barrier."
-    )
-    depth_top_m: float = Field(
-        ..., ge=0, description="Measured depth to top of barrier (m)."
-    )
-    depth_bottom_m: float = Field(
-        ..., gt=0, description="Measured depth to base of barrier (m)."
-    )
+    barrier_id: str = Field(..., min_length=1, description="Unique barrier identifier.")
+    barrier_type: BarrierType = Field(..., description="Primary or secondary barrier role.")
+    element: BarrierElement = Field(..., description="Physical element constituting the barrier.")
+    depth_top_m: float = Field(..., ge=0, description="Measured depth to top of barrier (m).")
+    depth_bottom_m: float = Field(..., gt=0, description="Measured depth to base of barrier (m).")
     condition_score: float = Field(
         ...,
         ge=0.0,
         le=1.0,
         description="Normalised raw condition in [0, 1]; 1 is pristine.",
     )
-    verification_method: str = Field(
-        default="", description="How the barrier was verified."
-    )
+    verification_method: str = Field(default="", description="How the barrier was verified.")
     verified: bool = Field(
         default=False, description="Whether the barrier was independently verified."
     )
-    notes: str | None = Field(
-        default=None, description="Optional free-text observations."
-    )
+    notes: str | None = Field(default=None, description="Optional free-text observations.")
 
     @model_validator(mode="after")
-    def _validate_depth_ordering(self) -> "BarrierData":
+    def _validate_depth_ordering(self) -> BarrierData:
         """Ensure the base of the barrier lies below its top."""
         if self.depth_bottom_m <= self.depth_top_m:
             raise ValueError(
@@ -120,10 +100,8 @@ class BarrierData(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _validate_verification_consistency(self) -> "BarrierData":
-        """A verified barrier must record how it was verified."""
+    def _validate_verification_consistency(self) -> BarrierData:
+        """Ensure a verified barrier records how it was verified."""
         if self.verified and not self.verification_method.strip():
-            raise ValueError(
-                "verification_method must be provided when verified is True."
-            )
+            raise ValueError("verification_method must be provided when verified is True.")
         return self

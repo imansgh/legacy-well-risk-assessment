@@ -64,6 +64,7 @@ def evaluate_mechanical_integrity(
 
     Returns:
         ``(mechanical_integrity_score, trace)`` on a 0-100 scale.
+
     """
     overrides = integrity_overrides()
     low_conf = overrides["low_confidence_condition_threshold"]
@@ -126,13 +127,10 @@ def evaluate_mechanical_integrity(
     total_length = sum(f["interval_length_m"] for f in fragments)
     if total_length > 0:
         base_component = clamp(
-            sum(f["element_score"] * f["interval_length_m"] for f in fragments)
-            / total_length
+            sum(f["element_score"] * f["interval_length_m"] for f in fragments) / total_length
         )
     else:  # pragma: no cover - guarded by model validation
-        base_component = clamp(
-            sum(f["element_score"] for f in fragments) / len(fragments)
-        )
+        base_component = clamp(sum(f["element_score"] for f in fragments) / len(fragments))
 
     mechanical_score = clamp(base_component + cementing_adjustment)
 

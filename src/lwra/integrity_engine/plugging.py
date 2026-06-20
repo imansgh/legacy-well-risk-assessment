@@ -69,6 +69,7 @@ def evaluate_plugging(
 
     Returns:
         ``(plugging_score, trace)`` on a 0-100 scale.
+
     """
     overrides = integrity_overrides()
     low_conf = overrides["low_confidence_condition_threshold"]
@@ -101,7 +102,7 @@ def evaluate_plugging(
         }
 
     fragments: list[dict[str, Any]] = []
-    raw_lengths: list[float] = []          # unrounded, used for the weighted mean
+    raw_lengths: list[float] = []  # unrounded, used for the weighted mean
     for b in plugs:
         base = condition_to_score(b.condition_score)
         vfactor = verification_factor(
@@ -129,13 +130,14 @@ def evaluate_plugging(
     total_length = sum(raw_lengths)
     if total_length > 0:
         condition_component = clamp(
-            sum(f["element_score"] * l for f, l in zip(fragments, raw_lengths))
+            sum(
+                f["element_score"] * length
+                for f, length in zip(fragments, raw_lengths, strict=False)
+            )
             / total_length
         )
     else:  # pragma: no cover - guarded by model validation
-        condition_component = clamp(
-            sum(f["element_score"] for f in fragments) / len(fragments)
-        )
+        condition_component = clamp(sum(f["element_score"] for f in fragments) / len(fragments))
 
     # Length adequacy modifier in [floor, 1.0].
     length_ratio = clamp(total_length / _ADEQUATE_PLUG_LENGTH_M, 0.0, 1.0)

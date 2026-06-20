@@ -74,9 +74,9 @@ _ABANDON_MIN_RISK: float = 76.0
 # in the recommendation).
 _CONFIDENCE_CEILING: float = 0.98
 _CONFIDENCE_FLOOR: float = 0.20
-_UNCERTAINTY_WEIGHT: float = 0.60   # Max confidence lost to full uncertainty.
-_PER_FLAG_PENALTY: float = 0.04     # Confidence lost per integrity flag.
-_MAX_FLAG_PENALTY: float = 0.20     # Cap on total flag penalty.
+_UNCERTAINTY_WEIGHT: float = 0.60  # Max confidence lost to full uncertainty.
+_PER_FLAG_PENALTY: float = 0.04  # Confidence lost per integrity flag.
+_MAX_FLAG_PENALTY: float = 0.20  # Cap on total flag penalty.
 
 
 def caprock_barrier_condition(well: WellData) -> tuple[float | None, dict[str, Any]]:
@@ -93,6 +93,7 @@ def caprock_barrier_condition(well: WellData) -> tuple[float | None, dict[str, A
     Returns:
         ``(condition, trace)`` where ``condition`` is the representative raw
         caprock condition in [0, 1], or ``None`` if no cement barrier exists.
+
     """
     cement = [b for b in well.barriers if b.element is BarrierElement.CEMENT]
     if not cement:
@@ -122,6 +123,7 @@ def _evaluate_gate(name: str, passed: bool, detail: dict[str, Any]) -> dict[str,
 
     Returns:
         A trace dict for the gate.
+
     """
     return {"gate": name, "passed": passed, **detail}
 
@@ -156,6 +158,7 @@ def assess_co2_storage_suitability(
 
     Returns:
         ``(level, trace)`` with the suitability level and full gate trace.
+
     """
     cfg = co2_storage_thresholds()
     caprock_condition, caprock_trace = caprock_barrier_condition(well)
@@ -299,6 +302,7 @@ def assess_geothermal_suitability(
 
     Returns:
         ``(level, trace)`` with the suitability level and full gate trace.
+
     """
     cfg = geothermal_thresholds()
     temperature = well.temperature_c
@@ -426,6 +430,7 @@ def decide_verdict(
 
     Returns:
         ``(verdict, trace)`` with the chosen verdict and the decisive reason.
+
     """
     i = integrity.overall_integrity_score
     r = risk.risk_score
@@ -438,8 +443,7 @@ def decide_verdict(
     if i < _ABANDON_MAX_INTEGRITY or r >= _ABANDON_MIN_RISK:
         verdict = Verdict.ABANDON
         reason = (
-            f"integrity {i} below {_ABANDON_MAX_INTEGRITY} "
-            f"or risk {r} at/above {_ABANDON_MIN_RISK}"
+            f"integrity {i} below {_ABANDON_MAX_INTEGRITY} or risk {r} at/above {_ABANDON_MIN_RISK}"
         )
     elif i >= _REUSE_MIN_INTEGRITY and r <= _REUSE_MAX_RISK and any_suitable:
         verdict = Verdict.REUSE
@@ -507,51 +511,68 @@ def generate_required_actions(
     Returns:
         ``(actions, trace)`` where ``actions`` is an ordered, de-duplicated
         tuple and ``trace`` records the reasons that produced each action.
+
     """
     reasons: list[tuple[str, str]] = []  # (action, reason)
 
     if primary_failed_or_unverified:
         reasons.append(
-            ("Verify or repair the primary (source-facing) barrier.",
-             "primary barrier failed or unverified")
+            (
+                "Verify or repair the primary (source-facing) barrier.",
+                "primary barrier failed or unverified",
+            )
         )
     if not has_verified_secondary:
         reasons.append(
-            ("Verify the independent secondary barrier.",
-             "no verified independent secondary barrier")
+            (
+                "Verify the independent secondary barrier.",
+                "no verified independent secondary barrier",
+            )
         )
     if integrity.cement_quality_score < 60.0:
         reasons.append(
-            ("Perform a cement bond log (CBL/USIT) to confirm annular seal.",
-             f"cement quality score {integrity.cement_quality_score} below adequate")
+            (
+                "Perform a cement bond log (CBL/USIT) to confirm annular seal.",
+                f"cement quality score {integrity.cement_quality_score} below adequate",
+            )
         )
     if integrity.mechanical_integrity_score < 60.0:
         reasons.append(
-            ("Run pressure / mechanical integrity testing on casing and tubing.",
-             f"mechanical integrity score {integrity.mechanical_integrity_score} below adequate")
+            (
+                "Run pressure / mechanical integrity testing on casing and tubing.",
+                f"mechanical integrity score {integrity.mechanical_integrity_score} below adequate",
+            )
         )
     if well.is_abandoned and integrity.plugging_score < 40.0:
         reasons.append(
-            ("Re-evaluate and, if required, re-establish abandonment plugs.",
-             f"plugging score {integrity.plugging_score} inadequate for an abandoned well")
+            (
+                "Re-evaluate and, if required, re-establish abandonment plugs.",
+                f"plugging score {integrity.plugging_score} inadequate for an abandoned well",
+            )
         )
     if risk.risk_score >= 51.0:
         reasons.append(
-            ("Investigate potential leakage pathways and pressure anomalies.",
-             f"risk score {risk.risk_score} in the high/critical band")
+            (
+                "Investigate potential leakage pathways and pressure anomalies.",
+                f"risk score {risk.risk_score} in the high/critical band",
+            )
         )
 
     # Missing-data action driven by the data-uncertainty factor in the risk
     # extraction trace, when available.
-    extraction = risk.calculation_trace.get("factor_extraction", {}) if isinstance(
-        risk.calculation_trace, dict
-    ) else {}
+    extraction = (
+        risk.calculation_trace.get("factor_extraction", {})
+        if isinstance(risk.calculation_trace, dict)
+        else {}
+    )
     missing = extraction.get("data_uncertainty_missing_fields", {})
     missing_fields = [k for k, is_missing in missing.items() if is_missing]
     if missing_fields:
         reasons.append(
-            (f"Collect missing well data: {', '.join(sorted(missing_fields))}.",
-             "key characterisation fields are missing")
+            (
+                f"Collect missing well data: {', '.join(sorted(missing_fields))}.",
+                "key characterisation fields are missing",
+            )
         )
 
     # Suitability-gate-driven actions (deduplicated naturally by the set below).
@@ -562,18 +583,24 @@ def generate_required_actions(
             name = gate["gate"]
             if name == "min_caprock_barrier_condition":
                 reasons.append(
-                    ("Assess and remediate caprock cement before CO2 storage reuse.",
-                     "caprock condition below CO2 storage gate")
+                    (
+                        "Assess and remediate caprock cement before CO2 storage reuse.",
+                        "caprock condition below CO2 storage gate",
+                    )
                 )
             elif name == "min_temperature_c":
                 reasons.append(
-                    ("Confirm reservoir temperature; thermal resource may be insufficient.",
-                     "temperature below geothermal gate")
+                    (
+                        "Confirm reservoir temperature; thermal resource may be insufficient.",
+                        "temperature below geothermal gate",
+                    )
                 )
             elif name == "min_depth_m":
                 reasons.append(
-                    ("Confirm total depth against reuse depth requirements.",
-                     "depth below a reuse gate")
+                    (
+                        "Confirm total depth against reuse depth requirements.",
+                        "depth below a reuse gate",
+                    )
                 )
 
     # De-duplicate actions while preserving first-seen order.
@@ -611,10 +638,13 @@ def compute_confidence(
 
     Returns:
         ``(confidence, trace)`` with confidence in [0, 1] and the derivation.
+
     """
-    extraction = risk.calculation_trace.get("factor_extraction", {}) if isinstance(
-        risk.calculation_trace, dict
-    ) else {}
+    extraction = (
+        risk.calculation_trace.get("factor_extraction", {})
+        if isinstance(risk.calculation_trace, dict)
+        else {}
+    )
     uncertainty_fraction = float(extraction.get("data_uncertainty_fraction", 0.0))
 
     flag_count = len(integrity.flags)
@@ -661,6 +691,7 @@ def _compose_rationale(
 
     Returns:
         A concise, multi-sentence rationale suitable for reports and UIs.
+
     """
     parts: list[str] = []
     parts.append(
@@ -675,9 +706,7 @@ def _compose_rationale(
             + ", ".join(risk.dominant_risk_drivers).replace("_", " ")
             + "."
         )
-    parts.append(
-        f"The engineering verdict is to {verdict.value.upper()}."
-    )
+    parts.append(f"The engineering verdict is to {verdict.value.upper()}.")
     parts.append(
         f"Reuse screening: CO2 storage is {co2.value.replace('_', ' ')}; "
         f"geothermal is {geothermal.value.replace('_', ' ')}."
@@ -729,6 +758,7 @@ def assess_recommendations_traced(
     Raises:
         ValueError: If ``well``, ``integrity`` and ``risk`` do not all refer to
             the same well.
+
     """
     if not (well.well_id == integrity.well_id == risk.well_id):
         raise ValueError(
@@ -809,6 +839,7 @@ def assess_recommendations(
 
     Returns:
         A fully populated, immutable :class:`RecommendationResult`.
+
     """
     result, _ = assess_recommendations_traced(
         well,
