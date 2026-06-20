@@ -1,4 +1,15 @@
-# Python
+# ── Third-party copyrighted uploads ─────────────────────────────────────────
+# Elicit library exports (third-party copyright; intentionally excluded)
+Elicit_*.xlsx
+Elicit_*.md
+elicit_*.xlsx
+elicit_*.md
+
+# ── Generated / derived outputs ──────────────────────────────────────────────
+reports_out/
+examples/output/
+
+# ── Python build artefacts ───────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.pyo
@@ -18,38 +29,33 @@ lib/
 lib64/
 .eggs/
 
-# Virtual environments
+# ── Virtual environments ──────────────────────────────────────────────────────
 .venv/
 venv/
 ENV/
 env/
 
-# Testing & coverage
+# ── Testing & coverage ────────────────────────────────────────────────────────
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
 
-# Type checking
+# ── Type checking & linting ───────────────────────────────────────────────────
 .mypy_cache/
-
-# Linting
 .ruff_cache/
 
-# IDE
+# ── IDE & editor ─────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 
-# OS
+# ── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 
-# Generated outputs (examples write here)
-examples/output/
-
-# Runtime / temp
+# ── Runtime / temp ───────────────────────────────────────────────────────────
 mnt/
 *.tmp
 *.log
