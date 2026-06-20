@@ -189,7 +189,7 @@ def create_app() -> FastAPI:
                 }
                 for a in assessments
             ),
-            key=lambda row: row["risk_score"],
+            key=lambda row: float(row["risk_score"]),  # type: ignore[arg-type]
             reverse=True,
         )
         return JSONResponse(content={"summary": summary, "results": results})

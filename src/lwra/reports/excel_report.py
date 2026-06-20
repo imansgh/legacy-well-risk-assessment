@@ -226,7 +226,7 @@ def _sheet_risk(ws: Worksheet, assessment: WellAssessment) -> None:
     row = 3
     _write_header_row(ws, row, ["Metric", "Value"])
     row += 1
-    metrics: list[tuple[str, object]] = [
+    metrics: list[tuple[str, str | float]] = [
         ("Risk score (0-100)", risk.risk_score),
         ("Risk category", fmt(risk.risk_category)),
         ("Likelihood (0-100)", risk.likelihood),
@@ -285,7 +285,7 @@ def _sheet_recommendation(ws: Worksheet, assessment: WellAssessment) -> None:
     row = 3
     _write_header_row(ws, row, ["Field", "Value"])
     row += 1
-    fields: list[tuple[str, object]] = [
+    fields: list[tuple[str, str | float]] = [
         ("Verdict", fmt(rec.verdict)),
         ("CO2 storage suitability", fmt(rec.co2_storage_suitability)),
         ("Geothermal suitability", fmt(rec.geothermal_suitability)),
@@ -369,6 +369,7 @@ def write_excel_report(
     wb.properties.description = DISCLAIMER
 
     inputs_ws = wb.active
+    assert isinstance(inputs_ws, Worksheet)
     inputs_ws.title = "Inputs"
     _sheet_inputs(inputs_ws, well)
     _sheet_integrity(wb.create_sheet("Integrity"), assessment)
