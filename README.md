@@ -86,7 +86,20 @@ result = assess_well_traced(excellent_well(), as_of=date(2025, 1, 1))
 print(result.verdict)                   # "reuse"
 print(result.overall_integrity_score)   # e.g. 91.3
 print(result.risk_score)                # e.g. 18.7
+
+# How trustworthy is the risk *category*? The band scales with missing data.
+from lwra.risk_engine.robustness import risk_category_robustness
+
+rob = risk_category_robustness(
+    excellent_well(), result.integrity, as_of=date(2025, 1, 1), risk=result.risk
+)
+print(rob.risk_category, rob.is_robust, rob.boundary_margin)
 ```
+
+The methodology and an independent audit (assumption classification, weaknesses,
+roadmap) are documented in
+[`docs/methodology.md`](docs/methodology.md) and
+[`docs/scientific_review.md`](docs/scientific_review.md).
 
 ### Command-line examples
 

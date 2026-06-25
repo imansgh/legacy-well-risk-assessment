@@ -35,6 +35,20 @@ risk_category_thresholds:
   critical: { min: 76.0 }   # 76-100
 
 # -----------------------------------------------------------------------------
+# Risk-category robustness band
+# -----------------------------------------------------------------------------
+# Consumed by risk_engine.robustness to flag wells whose risk CATEGORY is
+# fragile. The data-uncertainty fraction (0-1, share of key fields missing) is
+# scaled by this maximum (in risk-score points) to bound how far the score
+# might plausibly move if the missing inputs were filled in. A fully
+# characterised well (fraction 0) is treated as having a zero band; a fully
+# uncharacterised well uses the whole band. This does NOT change the nominal
+# risk score or category -- it only reports how trustworthy the category is.
+# Engineering-judgement default; calibrate against back-tested re-assessments.
+risk_category_robustness:
+  max_score_uncertainty: 15.0
+
+# -----------------------------------------------------------------------------
 # Factor normalisation
 # -----------------------------------------------------------------------------
 # Each risk factor is mapped to a 0-100 contribution before weighting. These

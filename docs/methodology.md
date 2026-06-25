@@ -148,3 +148,17 @@ containment stringency but temperature and depth requirements:
 Confidence in the recommendation decays from a ceiling (0.98) based on the
 data-uncertainty factor from the risk engine and the number of integrity flags
 raised. The floor is 0.20 so no recommendation is issued with zero confidence.
+
+## 4. Risk-category robustness
+
+The risk score is a point estimate, yet category boundaries (26, 51, 76) are
+sharp: a well at 50.5 is MEDIUM, at 51.5 is HIGH. `risk_engine.robustness`
+brackets the score by a symmetric band and re-categorises at each edge, flagging
+the category as **robust** only if it is unchanged across the band. The band
+width is the well's *data-uncertainty fraction* (share of key inputs missing)
+scaled by `thresholds.yaml: risk_category_robustness.max_score_uncertainty`
+(default 15 points), so a fully characterised well has a zero band and a sparse
+one is widely bracketed. This **never changes** the nominal score or category —
+it only reports how much the category can be trusted, so a triage queue is not
+re-ordered on differences smaller than the data support. See
+[scientific_review.md](scientific_review.md) §3.
